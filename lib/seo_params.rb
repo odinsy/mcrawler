@@ -3,8 +3,9 @@ require 'nokogiri'
 require 'PageRankr'
 
 class SeoParams
-  def initialize(url)
-    @url = url.gsub(/(http:\/\/|https:\/\/)/, '')
+  def initialize(url, proxy = nil)
+    @proxy  = URI.parse(proxy) unless proxy.nil?
+    @url    = url.gsub(/(http:\/\/|https:\/\/)/, '')
     if @url[-1] == '/'
       @url.chomp!('/')
     end
@@ -12,7 +13,7 @@ class SeoParams
 
   def all
     begin
-      doc_prcy = Nokogiri::HTML(open("http://pr-cy.ru/a/#{@url}", read_timeout: 10))
+      doc_prcy = Nokogiri::HTML(open("http://pr-cy.ru/a/#{@url}", proxy: @proxy, read_timeout: 10))
       host_info = get_host_info(doc_prcy)
       result = [
           "url => #{@url}",
