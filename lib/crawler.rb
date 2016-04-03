@@ -1,20 +1,21 @@
-require File.expand_path('../seo_params.rb', __FILE__)
+require 'socket'
+require 'timeout'
+require 'uri'
+require './lib/seo_params.rb'
 
 class Crawler
-  attr_accessor :domains, :nodes
+  attr_accessor :nodes
 
   def initialize
-    @domains  = load_domains
-    @nodes    = load_nodes
+    @nodes  = load_nodes
   end
 
   def run!
-    @domains.each_slice(@nodes.count) do |array|
-      @nodes.each do |node|
-        array.each do |url|
-          p SeoParams.new(url.strip, node.strip).all
-        end
-      end
+    load_domains.each do |domain|
+      proxy = @nodes.sample.strip
+      p proxy
+      # redo if !port_open?(proxy.host, proxy.port)
+      puts SeoParams.new(domain.strip, proxy).all
     end
   end
 
@@ -27,4 +28,19 @@ class Crawler
     raise ArgumentError, "File #{path} not found." unless File.exist?(path)
     File.readlines(path)
   end
+
+
+  def port_open?(ip, port, seconds = 1)
+    Timeout::timeout(seconds) do
+      begin
+        TCPSocket.new(ip, port).close
+        true
+      rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+        false
+      end
+    end
+  rescue Timeout::Error
+    false
+  end
+
 end
