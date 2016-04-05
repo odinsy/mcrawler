@@ -3,7 +3,7 @@ require 'optparse'
 require 'pmap'
 require 'csv'
 
-require File.expand_path('../lib/seo_params.rb', __FILE__)
+require File.expand_path('../lib/metrics_crawler', __FILE__)
 
 options = {}
 OptionParser.new do |opt|
@@ -22,7 +22,7 @@ if !options[:input_file].nil? && File.exist?(options[:input_file])
   File.readlines(options[:input_file]).peach(3) do |url|
     url = url.strip
     if !url.empty?
-      output = SeoParams.new(url, options[:proxy]).all
+      output = MetricsCrawler::SeoParams.new(url, options[:proxy]).all
       unless options[:output_file].nil?
         CSV.open(options[:output_file], 'a+', col_sep: '|', headers: output.keys) do |file|
           file << output.values
@@ -43,7 +43,7 @@ else
   if !options[:host_names].nil?
     options[:host_names].each do |url|
       if !url.empty?
-        output = SeoParams.new(url, options[:proxy]).all
+        output = MetricsCrawler::SeoParams.new(url, options[:proxy]).all
         if !options[:output_file].nil?
           File.open(options[:output_file], 'a') do |f|
             f.puts output.join(', ')

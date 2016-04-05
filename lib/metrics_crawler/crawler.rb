@@ -1,8 +1,8 @@
 require 'uri'
 require 'pmap'
-require './lib/metrics_crawler/splitter'
-require './lib/metrics_crawler/connection_checker'
-require './lib/metrics_crawler/seo_params'
+require_relative 'splitter'
+require_relative 'connection_checker'
+require_relative 'seo_params'
 
 module MetricsCrawler
   class Crawler

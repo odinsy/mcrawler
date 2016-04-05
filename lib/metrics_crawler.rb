@@ -1,8 +1,8 @@
-require "metrics_crawler/version"
-require "metrics_crawler/crawler"
-require "metrics_crawler/seo_params"
-require "metrics_crawler/proxy_list_fetcher"
-require 'metrics_crawler/connection_checker'
+require_relative "metrics_crawler/version.rb"
+require_relative "metrics_crawler/crawler.rb"
+require_relative "metrics_crawler/seo_params.rb"
+require_relative "metrics_crawler/proxy_list_fetcher.rb"
+require_relative 'metrics_crawler/connection_checker.rb'
 
 module MetricsCrawler
 end
