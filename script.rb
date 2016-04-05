@@ -1,13 +1,14 @@
 require 'pp'
 require 'optparse'
 
-require File.expand_path('../seo_params.rb', __FILE__)
+require File.expand_path('../lib/seo_params.rb', __FILE__)
 
 options = {}
 OptionParser.new do |opt|
   opt.on('-i', '--input_file FILE_PATH', 'Input file') { |o| options[:input_file] = o}
   opt.on('-o', '--output_file FILE_PATH', 'Output file') { |o| options[:output_file] = o}
   opt.on('-n', '--host_names "HOSTS"', 'Array with hosts names') { |o| options[:host_names] = o.split(' ')}
+  opt.on('-p', '--proxy IPADDR:PORT', 'Proxy') { |o| options[:proxy] = o}
 end.parse!
 
 
@@ -19,7 +20,7 @@ if !options[:input_file].nil? && File.exist?(options[:input_file])
   File.readlines(options[:input_file]).each do |url|
     url = url.strip
     if !url.empty?
-      output = SeoParams.new(url).all
+      output = SeoParams.new(url, options[:proxy]).all
       if !options[:output_file].nil?
         File.open(options[:output_file], 'a') do |f|
           f.puts output.join(', ')
@@ -37,7 +38,7 @@ else
   if !options[:host_names].nil?
     options[:host_names].each do |url|
       if !url.empty?
-        output = SeoParams.new(url).all
+        output = SeoParams.new(url, options[:proxy]).all
         if !options[:output_file].nil?
           File.open(options[:output_file], 'a') do |f|
             f.puts output.join(', ')
@@ -49,7 +50,6 @@ else
             p output
           end
         end
-
       end
     end
   else
