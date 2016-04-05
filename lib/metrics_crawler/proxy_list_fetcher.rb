@@ -2,6 +2,8 @@
 # proxy list: http://proxylist.hidemyass.com
 require 'nokogiri'
 require 'open-uri'
+require 'ruby-progressbar'
+require 'pmap'
 
 doc   = Nokogiri::HTML(open('http://proxylist.hidemyass.com/search-1304592#listable'))
 rows  = doc.xpath(".//*[@id='listable']/tbody/tr")
@@ -39,6 +41,22 @@ results = rows.collect do |row|
   result
 end
 
+def port_open?(ip, port, seconds = 2)
+  Timeout::timeout(seconds) do
+    begin
+      TCPSocket.new(ip, port).close
+      true
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+      false
+    end
+  end
+rescue Timeout::Error
+  false
+end
+
+bar     = ProgressBar.create(total: results.count)
+results = results.select { |res| port_open?(res[:addr], res[:port]) && bar.increment }
+p results
 results.each do |res|
   File.open('./data/node.list', 'a') { |f| f.puts "http://#{res[:addr]}:#{res[:port]}/" }
 end

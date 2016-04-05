@@ -1,5 +1,6 @@
-require File.expand_path('../lib/seo_params.rb', __FILE__)
-require File.expand_path('../lib/crawler.rb', __FILE__)
+require './lib/seo_params.rb'
+require './lib/crawler.rb'
 
 crawler = Crawler.new
-crawler.run!
+# crawler.run
+# crawler.run_with_proxy

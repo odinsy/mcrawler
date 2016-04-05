@@ -4,7 +4,7 @@ require 'PageRankr'
 
 class SeoParams
   def initialize(url, proxy = nil)
-    @proxy  = proxy
+    @proxy  = URI.parse(URI.encode(proxy)) unless proxy.nil?
     @url    = url.gsub(/(http:\/\/|https:\/\/)/, '')
     if @url[-1] == '/'
       @url.chomp!('/')
@@ -13,14 +13,14 @@ class SeoParams
 
   def all
     begin
-      doc_prcy = Nokogiri::HTML(open("http://pr-cy.ru/a/#{@url}", proxy: @proxy, read_timeout: 10))
-      puts doc_prcy
+      doc_prcy  = Nokogiri::HTML(open("http://pr-cy.ru/a/#{@url}", proxy: @proxy, read_timeout: 10))
+      yandex    = Nokogiri::HTML(open("https://yaca.yandex.ru/yca?text=#{@url}&yaca=1", proxy: @proxy, read_timeout: 10))
       host_info = get_host_info(doc_prcy)
-      result = {
+      result    = {
         url:              @url,
-        tic:              get_tic(@url),
+        tic:              get_yandex_tic(yandex),
         yandex_index:     get_yandex_index(doc_prcy),
-        yandex_catalog:   get_yandex_catalog(@url),
+        yandex_catalog:   get_yandex_catalog(yandex),
         goggle_pagerank:  get_google_pagerank(@url),
         google_index:     get_google_index(doc_prcy),
         backlinks:        get_backlinks(@url),
@@ -36,6 +36,8 @@ class SeoParams
       }
     rescue => ex
       error_handler("#{DateTime.now} #{ex.class} #{ex.message}")
+      # return ex.inspect
+      # return ex.backtrace
       # exit
     end
     result
@@ -43,8 +45,16 @@ class SeoParams
 
   private
 
-  def get_tic(url)
-    doc = Nokogiri::HTML(open("https://yaca.yandex.ru/yca?text=#{url}&yaca=1", read_timeout: 10))
+  def get_yandex_catalog(doc)
+    response_sites = doc.css(".b-result__quote")
+    if response_sites.count > 0
+      true
+    else
+      false
+    end
+  end
+
+  def get_yandex_tic(doc)
     response_sites = doc.css(".b-result__quote")
     if response_sites.count > 0
       response_sites.first.text.gsub(/Цитируемость: /, '')
@@ -63,18 +73,8 @@ class SeoParams
     google_index.gsub(/n\/a/, 'Null')
   end
 
-  def get_yandex_catalog(url)
-    doc = Nokogiri::HTML(open("https://yaca.yandex.ru/yca?text=#{url}&yaca=1", read_timeout: 10))
-    response_sites = doc.css(".b-result__quote")
-    if response_sites.count > 0
-      true
-    else
-      false
-    end
-  end
-
   def get_google_pagerank(url)
-    # PageRankr.proxy_service = @proxy
+    PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
     pagerank = PageRankr.ranks(url, :google)[:google]
     if pagerank.nil?
       'Null'
@@ -85,7 +85,7 @@ class SeoParams
 
   def get_backlinks(url)
     begin
-      # PageRankr.proxy_service = @proxy
+      PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
       backlinks = PageRankr.backlinks(url, :google)[:google]
     rescue SocketError
       error_handler ("SocketError: не получилось узнать количество backlinks для #{url}")
@@ -97,14 +97,14 @@ class SeoParams
   end
 
   def get_dmoz_catalog(url)
-    doc = Nokogiri::HTML(open("https://www.dmoz.org/search?q=#{url}", read_timeout: 10))
+    doc = Nokogiri::HTML(open("https://www.dmoz.org/search?q=#{url}", proxy: @proxy, read_timeout: 10))
     response_dmoz = doc.css(".open-dir-sites")
     response_dmoz.empty? ? false : true
   end
 
 
   def get_alexa_rank(url)
-    doc = Nokogiri::HTML(open("http://www.alexa.com/siteinfo/#{url}", read_timeout: 10))
+    doc = Nokogiri::HTML(open("http://www.alexa.com/siteinfo/#{url}", proxy: @proxy, read_timeout: 10))
     alexa_rank = doc.css(".metrics-data.align-vmiddle").first.text.strip.gsub(',', '').to_i
     if alexa_rank.zero?
       'Null'
@@ -141,7 +141,7 @@ class SeoParams
 
   def get_external_links(url)
     begin
-      external_links = Nokogiri::HTML(open("https://www.linkpad.ru/?search=#{url}", read_timeout: 10))
+      external_links = Nokogiri::HTML(open("https://www.linkpad.ru/?search=#{url}", proxy: @proxy, read_timeout: 10))
     rescue SocketError, Errno::ETIMEDOUT => ex
       error_handler("#{DateTime.now} #{ex.class} #{ex.message}")
       'Null'
