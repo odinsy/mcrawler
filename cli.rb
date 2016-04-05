@@ -1,6 +1,7 @@
-require './lib/seo_params.rb'
-require './lib/crawler.rb'
+require './lib/metrics_crawler/seo_params'
+require './lib/metrics_crawler/crawler'
 
-crawler = Crawler.new
+crawler = MetricsCrawler::Crawler.new
+crawler.split
 # crawler.run
 # crawler.run_with_proxy
