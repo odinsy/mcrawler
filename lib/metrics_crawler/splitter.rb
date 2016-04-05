@@ -5,8 +5,8 @@ require 'fileutils'
 module MetricsCrawler
   module Splitter
     def split(filename = './data/domain.list')
-      nodes       = @nodes.map { |node| URI.parse(node.strip).host }
       make_domain_files(nodes)
+      nodes       = @nodes.map { |node| URI.parse(node.strip).host }
       domains_num = %x{wc -l #{filename}}.split[0].to_i
       part_num    = (domains_num / nodes.count.to_f).ceil
       node_index  = 0
