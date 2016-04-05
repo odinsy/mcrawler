@@ -6,7 +6,7 @@ require 'metrics_crawler/version'
 Gem::Specification.new do |spec|
   spec.name          = "metrics_crawler"
   spec.version       = MetricsCrawler::VERSION
-  spec.authors       = ["TODO: Write your name"]
+  spec.authors       = ["Oleg Dianov"]
   spec.email         = ["odianov@wks-14.co.spb.ru"]
 
   spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
@@ -25,6 +25,11 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency 'PageRankr', '~> 4.6.0'
+  spec.add_dependency 'nokogiri', '~> 1.6.6.2'
+  spec.add_dependency 'pmap'
+  spec.add_dependency 'ruby-progressbar'
 
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
