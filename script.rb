@@ -27,15 +27,8 @@ if !options[:input_file].nil? && File.exist?(options[:input_file])
         CSV.open(options[:output_file], 'a+', col_sep: '|', headers: output.keys) do |file|
           file << output.values
         end
-        # File.open(options[:output_file], 'a') do |f|
-        #   f.puts output.join(', ')
-        # end
       else
-        if output.class == Array
-          p output.join(', ')
-        else
-          p output
-        end
+        p output.class.is_a?(Array) ? output.join(', ') : output
       end
     end
   end
@@ -49,11 +42,7 @@ else
             f.puts output.join(', ')
           end
         else
-          if output.class == Array
-            p output.join(', ')
-          else
-            p output
-          end
+          p output.class.is_a?(Array) ? output.join(', ') : output
         end
       end
     end

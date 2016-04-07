@@ -1,9 +1,12 @@
 require 'open-uri'
 require 'nokogiri'
 require 'PageRankr'
+require_relative 'connection_checker'
 
 module MetricsCrawler
   class SeoParams
+    include ConnectionChecker
+
     def initialize(url, proxy = nil)
       @proxy  = URI.parse(URI.encode(proxy)) unless proxy.nil?
       @url    = url.gsub(/(http:\/\/|https:\/\/)/, '')
@@ -14,17 +17,18 @@ module MetricsCrawler
 
     def all
       begin
+        yaca      = Nokogiri::HTML(open("https://yandex.ru/yaca/?text=#{@url}&yaca=1", proxy: @proxy, read_timeout: 10))
         doc_prcy  = Nokogiri::HTML(open("http://pr-cy.ru/a/#{@url}", proxy: @proxy, read_timeout: 10))
-        yandex    = Nokogiri::HTML(open("https://yaca.yandex.ru/yca?text=#{@url}&yaca=1", proxy: @proxy, read_timeout: 10))
         host_info = get_host_info(doc_prcy)
         result    = {
+          proxy:            @proxy.to_s,
           url:              @url,
-          tic:              get_yandex_tic(yandex),
+          yandex_catalog:   get_yandex_catalog(yaca),
+          tic:              get_yandex_tic(yaca),
           yandex_index:     get_yandex_index(doc_prcy),
-          yandex_catalog:   get_yandex_catalog(yandex),
+          backlinks:        get_backlinks(@url),
           goggle_pagerank:  get_google_pagerank(@url),
           google_index:     get_google_index(doc_prcy),
-          backlinks:        get_backlinks(@url),
           dmoz_catalog:     get_dmoz_catalog(@url),
           alexa_rank:       get_alexa_rank(@url),
           host_age:         host_info[0],
@@ -36,7 +40,7 @@ module MetricsCrawler
           external_links:   get_external_links(@url)
         }
       rescue => ex
-        error_handler("#{DateTime.now} #{ex.class} #{ex.message}")
+        error_handler("#{DateTime.now} #{ex.class} #{ex.message}, #{@url}: #{@proxy.to_s} ")
         # return ex.inspect
         # return ex.backtrace
         # exit
@@ -47,7 +51,7 @@ module MetricsCrawler
     private
 
     def get_yandex_catalog(doc)
-      response_sites = doc.css(".b-result__quote")
+      response_sites = doc.css(".yaca-snippet__cy")
       if response_sites.count > 0
         true
       else
@@ -56,9 +60,9 @@ module MetricsCrawler
     end
 
     def get_yandex_tic(doc)
-      response_sites = doc.css(".b-result__quote")
+      response_sites = doc.css(".yaca-snippet__cy")
       if response_sites.count > 0
-        response_sites.first.text.gsub(/Цитируемость: /, '')
+        response_sites.first.text.gsub(/ТИЦ: /, '')
       else
         'Null'
       end
