@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'metrics_crawler/cli.rb'
+MetricsCrawler::CLI.start
