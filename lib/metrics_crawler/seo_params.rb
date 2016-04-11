@@ -7,18 +7,23 @@ module MetricsCrawler
   class SeoParams
     include ConnectionChecker
 
+    YACA_LINK = 'https://yandex.ru/yaca/?text='.freeze
+    PRCY_LINK = 'http://pr-cy.ru/a/'.freeze
+    LINKPAD_LINK = 'https://www.linkpad.ru/?search='.freeze
+    PRCY_YAINDEX_XPATH = './/div[@id="box-basik"][1]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
+    PRCY_GOINDEX_XPATH = './/div[@id="box-basik"][2]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
+    PRCY_HOSTINFO_XPATH = './/div[@id="box-basik"][4]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"]//div[@class="pull-right"]'.freeze
+
     def initialize(url, proxy = nil)
       @proxy  = URI.parse(URI.encode(proxy)) unless proxy.nil?
       @url    = url.gsub(/(http:\/\/|https:\/\/)/, '')
-      if @url[-1] == '/'
-        @url.chomp!('/')
-      end
+      @url.chomp!('/') if @url[-1] == '/'
     end
 
     def all
       begin
-        yaca      = Nokogiri::HTML(open("https://yandex.ru/yaca/?text=#{@url}&yaca=1", proxy: @proxy, read_timeout: 10))
-        doc_prcy  = Nokogiri::HTML(open("http://pr-cy.ru/a/#{@url}", proxy: @proxy, read_timeout: 10))
+        yaca      = Nokogiri::HTML(open("#{YACA_LINK}#{@url}", proxy: @proxy, read_timeout: 10))
+        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}#{@url}", proxy: @proxy, read_timeout: 10))
         host_info = get_host_info(doc_prcy)
         result    = {
           proxy:            @proxy.to_s,
@@ -40,9 +45,7 @@ module MetricsCrawler
           external_links:   get_external_links(@url)
         }
       rescue => ex
-        error_handler("#{DateTime.now} #{ex.class} #{ex.message}, #{@url}: #{@proxy.to_s} ")
-        # return ex.inspect
-        # return ex.backtrace
+        error_handler("#{ex.class} #{ex.message} #{@url} #{@proxy}")
         # exit
       end
       result
@@ -51,7 +54,7 @@ module MetricsCrawler
     private
 
     def get_yandex_catalog(doc)
-      response_sites = doc.css(".yaca-snippet__cy")
+      response_sites = doc.css('.yaca-snippet__cy')
       if response_sites.count > 0
         true
       else
@@ -60,7 +63,7 @@ module MetricsCrawler
     end
 
     def get_yandex_tic(doc)
-      response_sites = doc.css(".yaca-snippet__cy")
+      response_sites = doc.css('.yaca-snippet__cy')
       if response_sites.count > 0
         response_sites.first.text.gsub(/ТИЦ: /, '')
       else
@@ -69,12 +72,12 @@ module MetricsCrawler
     end
 
     def get_yandex_index(doc_prcy)
-      yandex_index = doc_prcy.xpath('//div[@class="container main-content"]//div[@id="analysisContent"]//div[@class="row"]//div[@class="col-sm-12 col-md-9 col-xs-12"]//div[@id="box-basik"][1]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a').text.strip
+      yandex_index = doc_prcy.xpath(PRCY_YAINDEX_XPATH).text.strip
       yandex_index.gsub(/n\/a/, 'Null')
     end
 
     def get_google_index(doc_prcy)
-      google_index = doc_prcy.xpath('//div[@class="container main-content"]//div[@id="analysisContent"]//div[@class="row"]//div[@class="col-sm-12 col-md-9 col-xs-12"]//div[@id="box-basik"][2]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a').text.strip
+      google_index = doc_prcy.xpath(PRCY_GOINDEX_XPATH).text.strip
       google_index.gsub(/n\/a/, 'Null')
     end
 
@@ -89,28 +92,25 @@ module MetricsCrawler
     end
 
     def get_backlinks(url)
-      begin
-        PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
-        backlinks = PageRankr.backlinks(url, :google)[:google]
-      rescue SocketError
-        error_handler ("SocketError: не получилось узнать количество backlinks для #{url}")
-        'Null'
-      else
-        backlinks = 'Null' if backlinks.nil?
-        backlinks
-      end
+      PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
+      backlinks = PageRankr.backlinks(url, :google)[:google]
+    rescue SocketError
+      error_handler "SocketError: не получилось узнать количество backlinks для #{url}"
+      'Null'
+    else
+      backlinks = 'Null' if backlinks.nil?
+      backlinks
     end
 
     def get_dmoz_catalog(url)
       doc = Nokogiri::HTML(open("https://www.dmoz.org/search?q=#{url}", proxy: @proxy, read_timeout: 10))
-      response_dmoz = doc.css(".open-dir-sites")
+      response_dmoz = doc.css('.open-dir-sites')
       response_dmoz.empty? ? false : true
     end
 
-
     def get_alexa_rank(url)
       doc = Nokogiri::HTML(open("http://www.alexa.com/siteinfo/#{url}", proxy: @proxy, read_timeout: 10))
-      alexa_rank = doc.css(".metrics-data.align-vmiddle").first.text.strip.gsub(',', '').to_i
+      alexa_rank = doc.css('.metrics-data.align-vmiddle').first.text.strip.delete(',').to_i
       if alexa_rank.zero?
         'Null'
       else
@@ -123,10 +123,10 @@ module MetricsCrawler
       begin
         registration_info = doc_prcy
       rescue => ex
-        error_handler("#{DateTime.now} #{ex.class} #{ex.message}")
-        result = ['Null', 'Null', 'Null', 'Null', 'Null', 'Null']
+        error_handler("#{ex.class} #{ex.message}")
+        result = %w(Null Null Null Null Null Null)
       else
-        registration_info.xpath('//div[@class="container main-content"]//div[@id="analysisContent"]//div[@class="row"]//div[@class="col-sm-12 col-md-9 col-xs-12"]//div[@id="box-basik"][4]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"]//div[@class="pull-right"]').each_with_index do |data, i|
+        registration_info.xpath(PRCY_HOSTINFO_XPATH).each_with_index do |data, i|
           result[i] = data.text.strip.gsub(/(Не определен)а?\./, 'Null')
         end
       end
@@ -134,25 +134,21 @@ module MetricsCrawler
     end
 
     def get_benchmarking(url)
-      begin
-        dt = `curl -o /dev/null -s -w %{time_total} 'http://#{url}'`
-      rescue Net::ReadTimeout => ex
-        error_handler("#{DateTime.now} #{ex.class} #{ex.message}")
-        'Null'
-      else
-        "#{(dt.gsub(',','.').to_f*100).ceil}ms"
-      end
+      dt = `curl -o /dev/null -s -w %{time_total} 'http://#{url}'`
+    rescue Net::ReadTimeout => ex
+      error_handler("#{ex.class} #{ex.message}")
+      'Null'
+    else
+      "#{(dt.tr(',', '.').to_f * 100).ceil}ms"
     end
 
     def get_external_links(url)
-      begin
-        external_links = Nokogiri::HTML(open("https://www.linkpad.ru/?search=#{url}", proxy: @proxy, read_timeout: 10))
-      rescue SocketError, Errno::ETIMEDOUT => ex
-        error_handler("#{DateTime.now} #{ex.class} #{ex.message}")
-        'Null'
-      else
-        external_links.css('#a3').text.gsub(',', '')
-      end
+      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 10))
+    rescue SocketError, Errno::ETIMEDOUT => ex
+      error_handler("#{ex.class} #{ex.message}")
+      'Null'
+    else
+      external_links.css('#a3').text.delete(',')
     end
 
     def error_handler(error)

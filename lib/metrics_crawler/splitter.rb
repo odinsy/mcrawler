@@ -5,14 +5,14 @@ module MetricsCrawler
     def split(filename = './data/domain.list')
       nodes       = @nodes.map { |node| URI.parse(node.strip).host }
       make_domain_files(nodes)
-      domains_num = %x{wc -l #{filename}}.split[0].to_i
-      part_num    = (domains_num / nodes.count.to_f).ceil
-      node_index  = 0
-      File.readlines(filename).each_slice(part_num) do |part|
-        File.open("./data/domains/#{nodes[node_index]}", 'w+') { |f| f.puts part }
-        node_index += 1
+      domains     = File.readlines(filename)
+      part_num    = (domains.count / nodes.count.to_f).ceil
+      domains.each_slice(part_num).zip(nodes) do |part, node|
+        File.open("./data/domains/#{node}", 'w+') { |f| f.puts part }
       end
     end
+
+    private
 
     def make_domain_files(nodes)
       nodes.each { |node| FileUtils.touch("./data/domains/#{node}") unless File.exists?("./data/domains/#{node}") }
