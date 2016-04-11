@@ -9,6 +9,7 @@ module MetricsCrawler
       part_num    = (domains.count / nodes.count.to_f).ceil
       domains.each_slice(part_num).zip(nodes) do |part, node|
         File.open("./data/domains/#{node}", 'w+') { |f| f.puts part }
+        puts "Created file with domains ./data/domains/#{node}"
       end
     end
 

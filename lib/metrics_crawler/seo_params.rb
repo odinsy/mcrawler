@@ -7,11 +7,13 @@ module MetricsCrawler
   class SeoParams
     include ConnectionChecker
 
-    YACA_LINK = 'https://yandex.ru/yaca/?text='.freeze
-    PRCY_LINK = 'http://pr-cy.ru/a/'.freeze
-    LINKPAD_LINK = 'https://www.linkpad.ru/?search='.freeze
-    PRCY_YAINDEX_XPATH = './/div[@id="box-basik"][1]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
-    PRCY_GOINDEX_XPATH = './/div[@id="box-basik"][2]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
+    YACA_LINK           = 'https://yandex.ru/yaca/?text='.freeze
+    PRCY_LINK           = 'http://pr-cy.ru/a'.freeze
+    LINKPAD_LINK        = 'https://www.linkpad.ru/?search='.freeze
+    DMOZ_LINK           = 'https://www.dmoz.org/search?q='.freeze
+    ALEXA_LINK          = 'http://www.alexa.com/siteinfo'.freeze
+    PRCY_YAINDEX_XPATH  = './/div[@id="box-basik"][1]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
+    PRCY_GOINDEX_XPATH  = './/div[@id="box-basik"][2]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
     PRCY_HOSTINFO_XPATH = './/div[@id="box-basik"][4]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"]//div[@class="pull-right"]'.freeze
 
     def initialize(url, proxy = nil)
@@ -23,7 +25,7 @@ module MetricsCrawler
     def all
       begin
         yaca      = Nokogiri::HTML(open("#{YACA_LINK}#{@url}", proxy: @proxy, read_timeout: 10))
-        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}#{@url}", proxy: @proxy, read_timeout: 10))
+        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 10))
         host_info = get_host_info(doc_prcy)
         result    = {
           proxy:            @proxy.to_s,
@@ -55,20 +57,12 @@ module MetricsCrawler
 
     def get_yandex_catalog(doc)
       response_sites = doc.css('.yaca-snippet__cy')
-      if response_sites.count > 0
-        true
-      else
-        false
-      end
+      response_sites.count > 0 ? true : false
     end
 
     def get_yandex_tic(doc)
       response_sites = doc.css('.yaca-snippet__cy')
-      if response_sites.count > 0
-        response_sites.first.text.gsub(/ТИЦ: /, '')
-      else
-        'Null'
-      end
+      response_sites.count > 0 ? response_sites.first.text.gsub(/ТИЦ: /, '') : 'Null'
     end
 
     def get_yandex_index(doc_prcy)
@@ -84,11 +78,7 @@ module MetricsCrawler
     def get_google_pagerank(url)
       PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
       pagerank = PageRankr.ranks(url, :google)[:google]
-      if pagerank.nil?
-        'Null'
-      else
-        pagerank
-      end
+      pagerank.nil? ? 'Null' : pagerank
     end
 
     def get_backlinks(url)
@@ -103,19 +93,15 @@ module MetricsCrawler
     end
 
     def get_dmoz_catalog(url)
-      doc = Nokogiri::HTML(open("https://www.dmoz.org/search?q=#{url}", proxy: @proxy, read_timeout: 10))
+      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: 10))
       response_dmoz = doc.css('.open-dir-sites')
       response_dmoz.empty? ? false : true
     end
 
     def get_alexa_rank(url)
-      doc = Nokogiri::HTML(open("http://www.alexa.com/siteinfo/#{url}", proxy: @proxy, read_timeout: 10))
+      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: 10))
       alexa_rank = doc.css('.metrics-data.align-vmiddle').first.text.strip.delete(',').to_i
-      if alexa_rank.zero?
-        'Null'
-      else
-        alexa_rank
-      end
+      alexa_rank.zero? ? 'Null' : alexa_rank
     end
 
     def get_host_info(doc_prcy)
