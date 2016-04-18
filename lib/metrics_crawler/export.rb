@@ -5,7 +5,7 @@ module MetricsCrawler
   module Export
     # Exports array with movie hashes to JSON
     # @return [String]  the filename
-    def save_to_json(hash,filename = './tmp/domains.json')
+    def save_to_json(hash, filename = './tmp/domains.json')
       File.open(filename, 'a+') { |f| f.puts hash.to_json }
       filename
     end
