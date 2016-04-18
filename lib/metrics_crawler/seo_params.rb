@@ -18,14 +18,13 @@ module MetricsCrawler
 
     def initialize(url, proxy = nil)
       @proxy  = URI.parse(URI.encode(proxy)) unless proxy.nil?
-      @url    = url.gsub(/(http:\/\/|https:\/\/)/, '')
-      @url.chomp!('/') if @url[-1] == '/'
+      @url    = prepare_url(url)
     end
 
     def all
       begin
-        yaca      = Nokogiri::HTML(open("#{YACA_LINK}#{@url}", proxy: @proxy, read_timeout: 10))
-        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 10))
+        yaca      = Nokogiri::HTML(open("#{YACA_LINK}#{@url}", proxy: @proxy, read_timeout: 15))
+        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 15))
         host_info = get_host_info(doc_prcy)
         result    = {
           proxy:            @proxy.to_s,
@@ -93,13 +92,13 @@ module MetricsCrawler
     end
 
     def get_dmoz_catalog(url)
-      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: 10))
+      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: 15))
       response_dmoz = doc.css('.open-dir-sites')
       response_dmoz.empty? ? false : true
     end
 
     def get_alexa_rank(url)
-      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: 10))
+      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: 15))
       alexa_rank = doc.css('.metrics-data.align-vmiddle').first.text.strip.delete(',').to_i
       alexa_rank.zero? ? 'Null' : alexa_rank
     end
@@ -129,7 +128,7 @@ module MetricsCrawler
     end
 
     def get_external_links(url)
-      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 10))
+      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 15))
     rescue SocketError, Errno::ETIMEDOUT => ex
       error_handler("#{ex.class} #{ex.message}")
       'Null'
@@ -141,6 +140,14 @@ module MetricsCrawler
       File.open('errors', 'a') do |f|
         f.puts("#{DateTime.now}: #{error}")
       end
+    end
+
+    private
+
+    def prepare_url(url)
+      url.gsub(/(http:\/\/|https:\/\/)/, '')
+      url.chomp!('/') if @url[-1] == '/'
+      URI.parse(URI.encode(url)).to_s
     end
   end
 end
