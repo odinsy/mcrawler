@@ -25,8 +25,8 @@ module MetricsCrawler
 
     def all
       begin
-        yaca      = Nokogiri::HTML(open("#{YACA_LINK}#{@url}", proxy: @proxy, read_timeout: 20))
         PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
+        # yaca      = Nokogiri::HTML(open("#{YACA_LINK}#{@url}", proxy: @proxy, read_timeout: 20))
         doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 20))
         host_info = host_info(doc_prcy)
         result    = {
@@ -81,7 +81,6 @@ module MetricsCrawler
     end
 
     # def get_google_pagerank(url)
-    #   PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
     #   pagerank = PageRankr.ranks(url, :google)[:google]
     #   pagerank.nil? ? 'Null' : pagerank
     # end
