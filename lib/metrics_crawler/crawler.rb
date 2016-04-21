@@ -1,5 +1,5 @@
 require 'uri'
-require 'pmap'
+require 'parallel'
 require_relative 'splitter'
 require_relative 'connection_checker'
 require_relative 'seo_params'
@@ -18,7 +18,7 @@ module MetricsCrawler
     end
 
     def run_with_proxy
-      @nodes.peach(nodes.count) do |node|
+      Parallel.each(@nodes, in_processes: @nodes.count) do |node|
         filename = URI.parse(node).host
         run("data/domains/#{filename}", node)
       end
@@ -27,9 +27,9 @@ module MetricsCrawler
     def run(path = 'data/domain.list', proxy = nil)
       load_domains(path).each do |domain|
         output = SeoParams.new(domain, proxy).all
-        save_to_csv(output) unless output.nil?
         p output
-        sleep 5
+        output.delete(:proxy) && save_to_csv(output) unless output.nil?
+        sleep 3
       end
     end
 

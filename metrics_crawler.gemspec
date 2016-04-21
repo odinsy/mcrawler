@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'PageRankr', '~> 4.6.0'
   spec.add_dependency 'nokogiri', '~> 1.6.6.2'
-  spec.add_dependency 'pmap'
+  spec.add_dependency 'parallel'
   spec.add_dependency 'ruby-progressbar'
   spec.add_dependency 'thor'
 
