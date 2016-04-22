@@ -76,14 +76,9 @@ module MetricsCrawler
     end
 
     def google_pagerank(url)
-      tracker = PageRankr::Ranks::Google.new(url)
-      tracker.run
+      pagerank = PageRankr.ranks(url, :google)[:google]
+      pagerank.nil? ? 'Null' : pagerank
     end
-
-    # def get_google_pagerank(url)
-    #   pagerank = PageRankr.ranks(url, :google)[:google]
-    #   pagerank.nil? ? 'Null' : pagerank
-    # end
 
     def backlinks(url)
       backlinks = PageRankr.backlinks(url, :google)[:google]
