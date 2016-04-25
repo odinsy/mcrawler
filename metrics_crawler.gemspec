@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "metrics_crawler"
   spec.version       = MetricsCrawler::VERSION
   spec.authors       = ["Oleg Dianov"]
-  spec.email         = ["odianov@wks-14.co.spb.ru"]
+  spec.email         = ["odidoit@gmail.com"]
 
   spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
   spec.description   = %q{TODO: Write a longer description or delete this line.}
@@ -36,4 +36,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency 'factory_girl'
+  spec.add_development_dependency 'vcr'
+  spec.add_development_dependency 'webmock'
+  spec.add_development_dependency 'byebug'
+
 end
