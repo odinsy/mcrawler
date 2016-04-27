@@ -34,21 +34,21 @@ module MetricsCrawler
         result    = {
           proxy:            @proxy.to_s,
           url:              @url,
-          # yandex_catalog:   yandex_catalog(doc_prcy),
-          # yandex_tic:       yandex_tic(doc_prcy),
-          # yandex_index:     yandex_index(doc_prcy),
-          # google_index:     google_index(doc_prcy),
+          yandex_catalog:   yandex_catalog(doc_prcy),
+          yandex_tic:       yandex_tic(doc_prcy),
+          yandex_index:     yandex_index(doc_prcy),
+          google_index:     google_index(doc_prcy),
           google_pagerank:  google_pagerank(@url),
-          # backlinks:        backlinks(@url),
-          # dmoz_catalog:     dmoz_catalog(@url),
-          # alexa_rank:       alexa_rank(@url),
-          # host_age:         host_info[0],
-          # host_ip:          host_info[1],
-          # host_country:     host_info[3],
-          # host_from:        host_info[4],
-          # host_to:          host_info[5],
-          # download_speed:   benchmarking(@url),
-          # external_links:   external_links(@url)
+          backlinks:        backlinks(@url),
+          dmoz_catalog:     dmoz_catalog(@url),
+          alexa_rank:       alexa_rank(@url),
+          host_age:         host_info[0],
+          host_ip:          host_info[1],
+          host_country:     host_info[3],
+          host_from:        host_info[4],
+          host_to:          host_info[5],
+          download_speed:   benchmarking(@url),
+          external_links:   external_links(@url)
         }
       rescue => ex
         error_handler("#{ex.class} #{ex.message}")
@@ -137,7 +137,7 @@ module MetricsCrawler
     end
 
     def error_handler(error)
-      File.open('errors', 'a') do |f|
+      File.open('tmp/errors', 'a') do |f|
         f.puts("#{DateTime.now}: #{error}")
       end
     end
