@@ -16,7 +16,7 @@ describe 'SeoParams' do
       end
     end
 
-    describe 'all', vcr: true do
+    describe '.all', vcr: true do
       attributes = %w(url yandex_catalog yandex_tic yandex_index google_index google_pagerank backlinks dmoz_catalog alexa_rank host_age host_ip host_country host_from host_to download_speed external_links)
       subject(:result) { seo_params.all }
 
