@@ -3,6 +3,7 @@ require 'fileutils'
 module MetricsCrawler
   module Splitter
     def split(filename = './data/domain.list')
+      make_dir('data/domains')
       nodes       = @nodes.map { |node| URI.parse(node.strip).host }
       make_domain_files(nodes)
       domains     = File.readlines(filename)
@@ -17,6 +18,10 @@ module MetricsCrawler
 
     def make_domain_files(nodes)
       nodes.each { |node| FileUtils.touch("./data/domains/#{node}") unless File.exists?("./data/domains/#{node}") }
+    end
+
+    def make_dir(dir)
+      FileUtils::mkdir_p(dir) unless File.exists?(dir)
     end
   end
 end
