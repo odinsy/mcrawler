@@ -29,7 +29,7 @@ module MetricsCrawler
         output = SeoParams.new(domain, proxy).all
         p output
         output.delete(:proxy) && save_to_csv(output) unless output.nil?
-        sleep 3
+        sleep 5
       end
     end
 
