@@ -1,7 +1,6 @@
 require 'open-uri'
 require 'nokogiri'
 require 'PageRankr'
-require 'byebug'
 require_relative 'connection_checker'
 
 module MetricsCrawler
@@ -29,7 +28,7 @@ module MetricsCrawler
     def all
       begin
         PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
-        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 10))
+        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 20))
         host_info = host_info(doc_prcy)
         result    = {
           proxy:            @proxy.to_s,
@@ -39,7 +38,7 @@ module MetricsCrawler
           yandex_index:     yandex_index(doc_prcy),
           google_index:     google_index(doc_prcy),
           google_pagerank:  google_pagerank(@url),
-          backlinks:        backlinks(@url),
+          google_backlinks: backlinks(@url),
           dmoz_catalog:     dmoz_catalog(@url),
           alexa_rank:       alexa_rank(@url),
           host_age:         host_info[0],
@@ -51,8 +50,7 @@ module MetricsCrawler
           external_links:   external_links(@url)
         }
       rescue => ex
-        error_handler("#{ex.class} #{ex.message}")
-        # exit
+        error_handler("#{ex.class} #{ex.message} | #{@url} | #{@proxy}")
       end
       result
     end
@@ -69,38 +67,42 @@ module MetricsCrawler
 
     def yandex_index(doc_prcy)
       yandex_index = doc_prcy.xpath(PRCY_YANDEX_INDEX_XPATH).text.strip
-      yandex_index.gsub(/n\/a/, 'Null')
+      yandex_index.gsub(/n\/a/, '0')
     end
 
     def google_index(doc_prcy)
       google_index = doc_prcy.xpath(PRCY_GOOGLE_INDEX_XPATH).text.strip
-      google_index.gsub(/n\/a/, 'Null')
+      google_index.gsub(/n\/a/, '0')
     end
 
     def google_pagerank(url)
       pagerank = PageRankr.ranks(url, :google)[:google]
-      pagerank.nil? ? 'Null' : pagerank
+    rescue => ex
+      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+      'nil'
+    else
+      pagerank.nil? ? '0' : pagerank
     end
 
     def backlinks(url)
       backlinks = PageRankr.backlinks(url, :google)[:google]
-    rescue SocketError
-      error_handler "SocketError: не получилось узнать количество backlinks для #{url}"
-      'Null'
+    rescue => ex
+      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+      'nil'
     else
-      backlinks.nil? ? 'Null' : backlinks
+      backlinks.nil? ? '0' : backlinks
     end
 
     def dmoz_catalog(url)
-      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: 10))
+      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: 20))
       response_dmoz = doc.css('.open-dir-sites')
       response_dmoz.empty? ? false : true
     end
 
     def alexa_rank(url)
-      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: 10))
+      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: 20))
       alexa_rank = doc.css('.metrics-data.align-vmiddle').first.text.strip.delete(',').to_i
-      alexa_rank.zero? ? 'Null' : alexa_rank
+      alexa_rank.zero? ? '0' : alexa_rank
     end
 
     def host_info(doc_prcy)
@@ -108,7 +110,7 @@ module MetricsCrawler
       begin
         registration_info = doc_prcy
       rescue => ex
-        error_handler("#{ex.class} #{ex.message}")
+        error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
         result = %w(Null Null Null Null Null Null)
       else
         registration_info.xpath(PRCY_HOSTINFO_XPATH).each_with_index do |data, i|
@@ -121,16 +123,16 @@ module MetricsCrawler
     def benchmarking(url)
       dt = `curl -o /dev/null -s -w %{time_total} 'http://#{url}'`
     rescue Net::ReadTimeout => ex
-      error_handler("#{ex.class} #{ex.message}")
+      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
       'Null'
     else
       "#{(dt.tr(',', '.').to_f * 100).ceil}ms"
     end
 
     def external_links(url)
-      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 10))
+      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 20))
     rescue SocketError, Errno::ETIMEDOUT => ex
-      error_handler("#{ex.class} #{ex.message}")
+      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
       'Null'
     else
       external_links.css('#a3').text.delete(',')

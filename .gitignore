@@ -7,6 +7,5 @@
 /pkg/
 /spec/reports/
 /tmp/
-/data/results/*
-/data/domains/*
+/data/
 errors
