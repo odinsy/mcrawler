@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Oleg Dianov"]
   spec.email         = ["odidoit@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
+  spec.summary       = %q{Domain metrics crawler}
   spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "git@storage:metrics_crawler.git"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
   # delete this section to allow pushing this gem to any host.
@@ -38,6 +38,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'factory_girl'
   spec.add_development_dependency 'vcr'
   spec.add_development_dependency 'webmock'
-  spec.add_development_dependency 'byebug'
 
 end
