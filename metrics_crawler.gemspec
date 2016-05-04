@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["odidoit@gmail.com"]
 
   spec.summary       = %q{Domain metrics crawler}
-  spec.description   = %q{Domain metrics crawler}
-  # spec.homepage      = ""
+  spec.description   = %q{Domain metrics crawler description here}
+  spec.homepage      = ""
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
   # delete this section to allow pushing this gem to any host.
@@ -21,9 +21,9 @@ Gem::Specification.new do |spec|
     raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
   end
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features|data)/}) }
+  spec.bindir        = "bin"
+  spec.executables   = ["crawler"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'PageRankr', '~> 4.6', '>= 4.6.0'
