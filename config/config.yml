@@ -1,0 +1,8 @@
+---
+root_path: <%= MetricsCrawler::TMP_PATH %>
+domains_path: <%= MetricsCrawler::TMP_PATH %>/domains
+results_path: <%= MetricsCrawler::TMP_PATH %>/results
+logs_path: /var/logs/<%= MetricsCrawler.application %>
+
+nodes:
+  - http://example.com:8080/
