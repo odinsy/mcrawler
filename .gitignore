@@ -11,3 +11,4 @@
 errors
 /bin/console
 /bin/setup
+*.gem
