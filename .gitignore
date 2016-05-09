@@ -9,3 +9,5 @@
 /tmp/
 /data/
 errors
+/bin/console
+/bin/setup
