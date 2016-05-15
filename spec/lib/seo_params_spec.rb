@@ -3,7 +3,7 @@ require 'metrics_crawler/seo_params'
 describe 'SeoParams' do
   let(:seo_params) { build(:seo_params) }
   let(:seo_params_with_proxy) { build(:seo_params_with_proxy) }
-  let(:url) { 'https://www.facebook.com/' }
+  let(:url) { 'http://google.com' }
   let(:proxy) { 'http://wls-01.co.spb.ru:3128' }
 
   context 'without proxy' do
@@ -17,7 +17,7 @@ describe 'SeoParams' do
     end
 
     describe '.all', vcr: true do
-      attributes = %w(url yandex_catalog yandex_tic yandex_index google_index google_pagerank backlinks dmoz_catalog alexa_rank host_age host_ip host_country host_from host_to download_speed external_links)
+      attributes = %w(url yandex_catalog yandex_tic yandex_index google_index google_pagerank google_backlinks dmoz_catalog alexa_rank host_age host_ip host_country host_from host_to download_speed external_links)
       subject(:result) { seo_params.all }
 
       it 'responds to method "all"' do
