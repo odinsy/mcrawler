@@ -1,6 +1,6 @@
 require 'yaml'
 require 'erb'
-require 'metrics_crawler'
+require_relative 'constants'
 
 module MetricsCrawler
   class Config

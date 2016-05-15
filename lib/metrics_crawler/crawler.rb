@@ -1,5 +1,8 @@
 require 'uri'
 require 'parallel'
+require 'yaml'
+require_relative 'config'
+require_relative 'constants'
 require_relative 'splitter'
 require_relative 'connection_checker'
 require_relative 'seo_params'
@@ -7,29 +10,37 @@ require_relative 'export'
 
 module MetricsCrawler
   class Crawler
-    include Splitter
+    extend Splitter
     include ConnectionChecker
     include Export
 
-    attr_accessor :nodes
+    attr_accessor :domains_path, :result_path, :nodes
 
-    def initialize
-      @nodes = load_nodes
-    end
-
-    def run(path = 'data/domain.list', dest = 'data/results/domains.csv', proxy = nil)
-      load_domains(path).each do |domain|
-        output = SeoParams.new(domain, proxy).all
-        output.delete(:proxy) && save_to_csv(output, dest) unless output.nil?
-        p output
-        sleep 5
+    def initialize(config_path = nil)
+      settings  = Config.new(config_path).settings unless config_path.nil?
+      if settings
+        @domains_path = settings['domains_path']
+        @result_path  = "#{settings['results_path']}/#{RESULT_FILE}"
+        @nodes        = settings['nodes']
       end
     end
 
-    def run_with_proxy(dest = 'data/results/domains.csv')
-      Parallel.each(@nodes, in_processes: @nodes.count) do |node|
+    def run(src_dir, dest, nodes)
+      raise ArgumentError, "In the configuration file does not specify an any proxy server." if nodes.nil?
+      Parallel.each(nodes, in_processes: nodes.count) do |node|
         filename = URI.parse(node).host
-        run("data/domains/#{filename}", dest, node)
+        solorun("#{src_dir}/#{filename}", dest, node)
+      end
+    end
+
+    def solorun(src, dest, proxy = nil)
+      load_domains(src).each do |domain|
+        output = SeoParams.new(domain, proxy).all
+        unless output.nil?
+          output.delete(:proxy) && save_to_csv(output, dest)
+        end
+        p output
+        sleep 5
       end
     end
 
@@ -37,12 +48,7 @@ module MetricsCrawler
 
     def load_domains(path)
       raise ArgumentError, "File #{path} not found." unless File.exist?(path)
-      File.readlines(path).map { |domain| domain.strip }
-    end
-
-    def load_nodes(path = 'data/nodes')
-      raise ArgumentError, "File #{path} not found." unless File.exist?(path)
-      File.readlines(path).map { |node| node.strip }
+      File.readlines(path).map(&:strip)
     end
   end
 end

@@ -1,6 +1,7 @@
 require 'open-uri'
 require 'nokogiri'
 require 'PageRankr'
+require_relative 'constants'
 require_relative 'connection_checker'
 
 module MetricsCrawler
@@ -41,7 +42,7 @@ module MetricsCrawler
           google_backlinks: backlinks(@url),
           dmoz_catalog:     dmoz_catalog(@url),
           alexa_rank:       alexa_rank(@url),
-          host_age:         host_info[0],
+          host_age:         host_info[0].force_encoding("utf-8"),
           host_ip:          host_info[1],
           host_country:     host_info[3],
           host_from:        host_info[4],
@@ -49,8 +50,14 @@ module MetricsCrawler
           download_speed:   benchmarking(@url),
           external_links:   external_links(@url)
         }
+      rescue RuntimeError => ex
+        error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
+        exit
+      rescue Errno::ECONNREFUSED => ex
+        error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
+        exit
       rescue => ex
-        error_handler("#{ex.class} #{ex.message} | #{@url} | #{@proxy}")
+        error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       end
       result
     end
@@ -78,7 +85,7 @@ module MetricsCrawler
     def google_pagerank(url)
       pagerank = PageRankr.ranks(url, :google)[:google]
     rescue => ex
-      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+      error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       'nil'
     else
       pagerank.nil? ? '0' : pagerank
@@ -87,7 +94,7 @@ module MetricsCrawler
     def backlinks(url)
       backlinks = PageRankr.backlinks(url, :google)[:google]
     rescue => ex
-      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+      error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       'nil'
     else
       backlinks.nil? ? '0' : backlinks
@@ -110,7 +117,7 @@ module MetricsCrawler
       begin
         registration_info = doc_prcy
       rescue => ex
-        error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+        error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
         result = %w(Null Null Null Null Null Null)
       else
         registration_info.xpath(PRCY_HOSTINFO_XPATH).each_with_index do |data, i|
@@ -123,7 +130,7 @@ module MetricsCrawler
     def benchmarking(url)
       dt = `curl -o /dev/null -s -w %{time_total} 'http://#{url}'`
     rescue Net::ReadTimeout => ex
-      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+      error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       'Null'
     else
       "#{(dt.tr(',', '.').to_f * 100).ceil}ms"
@@ -132,14 +139,16 @@ module MetricsCrawler
     def external_links(url)
       external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 20))
     rescue SocketError, Errno::ETIMEDOUT => ex
-      error_handler("Method: #{__callee__} | #{ex.class} | #{ex.message} | #{url} | #{@proxy}")
+      error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       'Null'
     else
       external_links.css('#a3').text.delete(',')
     end
 
     def error_handler(error)
-      File.open('tmp/errors', 'a') do |f|
+      error_log = "#{TMP_PATH}/logs/errors.log"
+      FileUtils.mkdir_p(File.dirname(error_log))
+      File.open(error_log, 'a') do |f|
         f.puts("#{DateTime.now}: #{error}")
       end
     end

@@ -1,30 +1,32 @@
-#!/usr/bin/env ruby
-require 'metrics_crawler/crawler'
 require 'thor'
+require_relative 'crawler'
+require_relative 'constants'
+require_relative 'config'
+require_relative 'cli/start'
 
 module MetricsCrawler
   class CLI < Thor
-    include Export
+    desc 'start TYPE', 'Start crawling. Type can be SOLO or MULTI.'
+    subcommand 'start', MetricsCrawler::Start
 
-    desc 'split', 'Split the domains file.'
-    method_option :file, type: :string, aliases: "-f", desc: "Domains file", default: "data/domain.list"
-    def split
-      crawler = MetricsCrawler::Crawler.new
-      crawler.split(options[:file])
+    desc 'init', 'Generate all the necessary files'
+    def init
+      MetricsCrawler::Config.new
     end
 
-    desc 'start', 'Run crawling for domains from file via or without proxy.'
-    method_option :file, type: :string, aliases: "-f", desc: "Domains file", default: "data/domain.list"
-    method_option :dest, type: :string, aliases: "-d", desc: "Destination for results file", default: "data/results/domains.csv"
-    method_option :proxy, type: :string, aliases: "-p", desc: "Proxyname like 'http://proxyname:port/'", default: nil
-    method_option :multi, type: :boolean, desc: "Parallel mode."
-    def start
-      crawler = MetricsCrawler::Crawler.new
-      make_header(options[:dest])
-      if options.multi?
-        crawler.run_with_proxy(options[:dest])
+    desc 'split', 'Split the domains file.'
+    method_option :config, type: :string, aliases: "-C", desc: "Path to configuration file. Default: #{MetricsCrawler::CONFIG_PATH}", lazy_default: MetricsCrawler::CONFIG_PATH
+    method_option :file, type: :string, aliases: "-f", desc: "Domains file.", required: true
+    method_option :dest, type: :string, aliases: "-d", desc: "Path to directory where to store splitted files."
+    method_option :nodes, type: :array, aliases: "-n", desc: "Path to configuration file where declared nodes."
+    def split
+      if options.config?
+        config = MetricsCrawler::Config.new(options[:config]).settings
+        MetricsCrawler::Crawler.split_to_files(options[:file], config['domains_path'], config['nodes'])
+      elsif options.file? && options.dest? && options.nodes?
+        MetricsCrawler::Crawler.split_to_files(options[:file], options[:dest], options[:nodes])
       else
-        crawler.run(options[:file], options[:dest], options[:proxy])
+        say "Were not passed all arguments."
       end
     end
   end

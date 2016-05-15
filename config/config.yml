@@ -2,7 +2,7 @@
 root_path: <%= MetricsCrawler::TMP_PATH %>
 domains_path: <%= MetricsCrawler::TMP_PATH %>/domains
 results_path: <%= MetricsCrawler::TMP_PATH %>/results
-logs_path: /var/logs/<%= MetricsCrawler.application %>
+logs_path: <%= MetricsCrawler::TMP_PATH %>/logs
 
 nodes:
   - http://example.com:8080/
