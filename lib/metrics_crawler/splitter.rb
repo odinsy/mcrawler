@@ -6,7 +6,7 @@ require_relative 'config'
 module MetricsCrawler
   module Splitter
     # Делит входящий файл с доменами на количество переданных нод, сохраняет файлы с названиями хостов нод в переданную директорию.
-    def split(src_file, dst_dir, nodes)
+    def split_to_files(src_file, dst_dir, nodes)
       make_dir(dst_dir)
       nodes       = nodes.map { |node| prepare_node(node) }
       make_domain_files(dst_dir, nodes)
