@@ -32,7 +32,6 @@ module MetricsCrawler
         doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 20))
         host_info = host_info(doc_prcy)
         result    = {
-          proxy:            @proxy.to_s,
           url:              @url,
           yandex_catalog:   yandex_catalog(doc_prcy),
           yandex_tic:       yandex_tic(doc_prcy),
