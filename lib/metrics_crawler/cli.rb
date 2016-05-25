@@ -41,7 +41,7 @@ module MetricsCrawler
       if options.config?
         crawler = MetricsCrawler::Crawler.new(options[:config])
         say "Started crawling #{options[:file]} to #{options[:dest]}"
-        crawler.run(options[:file], options[:file], crawler.nodes)
+        crawler.run(options[:file], options[:dest], crawler.nodes)
       else
         crawler = MetricsCrawler::Crawler.new
         say "Started crawling #{options[:file]} to #{options[:dest]}"
