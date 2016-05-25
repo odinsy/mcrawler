@@ -6,6 +6,9 @@ describe 'Splitter' do
   let! (:nodes) { ["http://node01.example.com:80", "http://node02.example.com:80"] }
 
   describe '#split' do
+    it 'responds to method #split' do
+      expect(crawler).to respond_to(:split)
+    end
     it 'returns a hash' do
       expect(crawler.split(domains_path, nodes)).to be_a(Hash)
     end
