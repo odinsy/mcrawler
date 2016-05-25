@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Domain metrics crawler}
   spec.description   = %q{Domain metrics crawler description here}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/odinsy/metrics_crawler"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
   # delete this section to allow pushing this gem to any host.
@@ -28,15 +28,15 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'PageRankr', '~> 4.6', '>= 4.6.0'
   spec.add_dependency 'nokogiri', '~> 1.6', '>= 1.6.6.2'
-  spec.add_dependency 'parallel'
-  spec.add_dependency 'ruby-progressbar'
-  spec.add_dependency 'thor'
+  spec.add_dependency 'parallel', '~> 1.8'
+  spec.add_dependency 'ruby-progressbar', '~> 1.8', '>= 1.8.0'
+  spec.add_dependency 'thor', '~> 0.19.1'
 
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency 'factory_girl'
-  spec.add_development_dependency 'vcr'
-  spec.add_development_dependency 'webmock'
+  spec.add_development_dependency 'factory_girl', '~> 4.7', '>= 4.7.0'
+  spec.add_development_dependency 'vcr', '~> 3.0', '>= 3.0.1'
+  spec.add_development_dependency 'webmock', '~> 1.24', '>= 1.24.5'
 
 end
