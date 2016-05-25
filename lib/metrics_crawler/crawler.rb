@@ -2,17 +2,17 @@ require 'uri'
 require 'parallel'
 require 'yaml'
 require_relative 'config'
+require_relative 'seo_params'
 require_relative 'constants'
 require_relative 'splitter'
-require_relative 'connection_checker'
-require_relative 'seo_params'
 require_relative 'export'
+require_relative 'helpers'
 
 module MetricsCrawler
   class Crawler
-    extend Splitter
-    include ConnectionChecker
+    include Splitter
     include Export
+    include Helpers
 
     attr_accessor :domains_path, :result_path, :nodes
 
@@ -25,30 +25,38 @@ module MetricsCrawler
       end
     end
 
-    def run(src_dir, dest, nodes)
-      raise ArgumentError, "In the configuration file does not specify an any proxy server." if nodes.nil?
-      Parallel.each(nodes, in_processes: nodes.count) do |node|
-        filename = URI.parse(node).host
-        solorun("#{src_dir}/#{filename}", dest, node)
-      end
-    end
-
-    def solorun(src, dest, proxy = nil)
-      load_domains(src).each do |domain|
-        output = SeoParams.new(domain, proxy).all
-        unless output.nil?
-          output.delete(:proxy) && save_to_csv(output, dest)
+    def run(file, destination, nodes = nil)
+      domains = nodes.nil? ? load_domains(file) : split(file, nodes)
+      make_header(destination)
+      if nodes.nil?
+        fetch(domains, destination, nodes)
+      else
+        Parallel.each(nodes, in_processes: nodes.count) do |node|
+          fetch(domains[node], destination, node)
         end
-        p output
-        sleep 5
       end
     end
 
     private
-
-    def load_domains(path)
-      raise ArgumentError, "File #{path} not found." unless File.exist?(path)
-      File.readlines(path).map(&:strip)
+    # Сбор результатов для массива доменов
+    def fetch(domains, destination, proxy)
+      domains.each do |domain|
+        output = SeoParams.new(domain, proxy).all
+        save_to_csv(output, destination) unless output.nil?
+        sleep 5
+      end
+    end
+    # Подготовка имени ноды - берется только hostname.
+    def prepare_nodes(nodes)
+      nodes.map { |node| check_uri(node).host }
+    end
+    # Проверяет URI на корректность.
+    # Если URI не содержит hostname или port, выдаст исключение.
+    # В противном случае возвращает URI
+    def check_uri(uri)
+      uri = Addressable::URI.parse(uri)
+      raise ArgumentError, "Node #{uri} has a bad URI." if uri.host.nil? || uri.port.nil?
+      uri
     end
   end
 end

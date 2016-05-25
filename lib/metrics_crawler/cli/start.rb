@@ -15,8 +15,7 @@ module MetricsCrawler
     def solo
       crawler = MetricsCrawler::Crawler.new
       say "Started crawling to #{options[:dest]}"
-      make_header(options[:dest])
-      crawler.solorun(options[:file], options[:dest], options[:proxy])
+      crawler.run(options[:file], options[:dest], options[:proxy])
     end
 
     desc 'multi', 'Start crawling metrics for domains in a parallel mode.'
@@ -28,12 +27,10 @@ module MetricsCrawler
       if options.config?
         crawler = MetricsCrawler::Crawler.new(options[:config])
         say "Started crawling to #{crawler.result_path}"
-        make_header(crawler.result_path)
         crawler.run(crawler.domains_path, crawler.result_path, crawler.nodes)
       elsif options.source? && options.dest? && options.nodes?
         crawler = MetricsCrawler::Crawler.new
         say "Started crawling to #{options[:dest]}"
-        make_header(options[:dest])
         crawler.run(options[:source], options[:dest], options[:nodes])
       else
         say "Were not passed all arguments."
