@@ -2,7 +2,8 @@ require 'thor'
 require_relative 'crawler'
 require_relative 'constants'
 require_relative 'config'
-# require_relative 'cli/start'
+require_relative 'version'
+
 module MetricsCrawler
   # CLI Module
   class CLI < Thor
