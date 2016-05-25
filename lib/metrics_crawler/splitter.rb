@@ -12,7 +12,8 @@ module MetricsCrawler
       domains   = load_domains(file)
       part_num  = (domains.count / nodes.count.to_f).ceil
       domains   = domains.each_slice(part_num)
-      nodes.zip(domains).map { |k, v| [k.to_sym, v] }.to_h
+      nodes.zip(domains).to_h
+      # nodes.zip(domains).map { |k, v| [k.to_sym, v] }.to_h
     end
   end
 end
