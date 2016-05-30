@@ -1,13 +1,11 @@
+require 'fileutils'
+require "addressable/uri"
+
 module MetricsCrawler
   module Helpers
     # Создает директорию, если она не существует.
     def make_dir(dir)
       FileUtils.mkdir_p(dir) unless File.exist?(dir)
-    end
-    # Загружает домены из файла
-    def load_domains(path)
-      raise ArgumentError, "File #{path} not found." unless File.exist?(path)
-      File.readlines(path).map(&:strip)
     end
     # Подготовка имени ноды - берется только hostname.
     def prepare_nodes(nodes)
