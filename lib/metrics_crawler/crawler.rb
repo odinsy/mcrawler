@@ -1,5 +1,6 @@
+# require 'parallel'
+require 'pmap'
 require 'uri'
-require 'parallel'
 require 'yaml'
 require 'fileutils'
 require_relative 'config'
@@ -23,9 +24,12 @@ module MetricsCrawler
       if nodes.nil?
         fetch(domains, destination, nodes)
       else
-        Parallel.each(nodes, in_processes: nodes.count) do |node|
+        nodes.peach(nodes.count) do |node|
           fetch(domains[node], destination, node)
         end
+        # Parallel.each(nodes, in_processes: nodes.count) do |node|
+        #   fetch(domains[node], destination, node)
+        # end
       end
     end
     # Делит входящий файл с доменами на количество переданных нод
