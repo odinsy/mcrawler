@@ -57,6 +57,7 @@ module MetricsCrawler
         exit
       rescue => ex
         error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
+        exit
       end
       result
     end
