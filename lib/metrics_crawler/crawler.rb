@@ -6,12 +6,10 @@ require_relative 'config'
 require_relative 'seo_params'
 require_relative 'constants'
 require_relative 'export'
-require_relative 'helpers'
 
 module MetricsCrawler
   class Crawler
     include Export
-    include Helpers
 
     attr_accessor :nodes
 
