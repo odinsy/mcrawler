@@ -1,5 +1,4 @@
-# require 'parallel'
-require 'pmap'
+require 'parallel'
 require 'uri'
 require 'yaml'
 require 'fileutils'
@@ -24,12 +23,7 @@ module MetricsCrawler
       if nodes.nil?
         fetch(domains, destination, nodes)
       else
-        nodes.peach(nodes.count) do |node|
-          fetch(domains[node], destination, node)
-        end
-        # Parallel.each(nodes, in_processes: nodes.count) do |node|
-        #   fetch(domains[node], destination, node)
-        # end
+        Parallel.each(nodes, in_processes: nodes.count) { |node| fetch(domains[node], destination, node) }
       end
     end
     # Делит входящий файл с доменами на количество переданных нод
@@ -47,7 +41,7 @@ module MetricsCrawler
     def fetch(domains, destination, proxy)
       domains.each do |domain|
         output = SeoParams.new(domain, proxy).all
-        p output
+        puts "#{proxy} => #{output}"
         save_to_csv(output, destination) unless output.nil?
         sleep 5
       end
