@@ -29,7 +29,7 @@ module MetricsCrawler
     def all
       begin
         PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_s) unless @proxy.nil?
-        doc_prcy  = Nokogiri::HTML(open("#{PRCY_LINK}/#{@url}", proxy: @proxy, read_timeout: 20))
+        doc_prcy  = prcy_info(@url, @proxy, 10)
         host_info = host_info(doc_prcy)
         result    = {
           url:              @url,
@@ -49,20 +49,17 @@ module MetricsCrawler
           download_speed:   benchmarking(@url),
           external_links:   external_links(@url)
         }
-      rescue RuntimeError => ex
-        error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
-        exit
-      rescue Errno::ECONNREFUSED => ex
-        error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
-        exit
       rescue => ex
-        error_handler("Rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
-        exit
+        error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       end
       result
     end
 
     private
+
+    def prcy_info(url, proxy, timeout)
+      Nokogiri::HTML(open("#{PRCY_LINK}/#{url}", proxy: proxy, read_timeout: timeout))
+    end
 
     def yandex_catalog(doc_prcy)
       doc_prcy.xpath(PRCY_YANDEX_CAT_XPATH).text.strip == 'Да' ? true : false
