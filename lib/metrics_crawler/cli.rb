@@ -36,7 +36,7 @@ module MetricsCrawler
     method_option :nodes,
                   type: :array,
                   aliases: "-P",
-                  desc: "Proxies list.",
+                  desc: "Proxies list. Example: -P http://node01.org:3128 http://node02.org:3128",
                   default: nil
     def start
       if options.config?

@@ -15,7 +15,7 @@
 
 ---
 
-После установки, запуск краулера будет доступен из командной строки:
+CLI:
 ```
 ➜  ~ crawler
 Commands:
@@ -40,7 +40,7 @@ Generated configuration file: /home/crawler/.config/metrics_crawler/config.yml
 
 ---
 
-После запуска crawler init конфигурационный файл можно отредактировать и указать свои пути.
+После инициализации конфигурационный файл можно отредактировать и указать свои пути.
 По умолчанию приложение хранит всю информацию во временной директории /tmp/metrics_crawler
 
 ```
@@ -51,14 +51,14 @@ domains_path: "/tmp/metrics_crawler/domains"
 results_path: "/tmp/metrics_crawler/results"
 logs_path: "/tmp/metrics_crawler/logs"
 nodes:
-- http://example.com:8080/
+- http://node01:3128/
 ```
 
 * root_path - директория, где предполагается вести работу (сейчас не используется)
 * domains_path - (сейчас не используется)
 * results_path - (сейчас не используется)
 * logs_path - директория, где хранятся логи с ошибками
-* nodes - список нод (прокси-серверов), которые планируется использовать. 1 строка вида "- http://example.com:8080/" - 1 нода.
+* nodes - список нод (прокси-серверов), которые планируется использовать. 1 строка вида "- http://node01:3128/" - 1 нода.
 
 Пример рабочего конфига:
 
@@ -70,17 +70,9 @@ domains_path: "/tmp/metrics_crawler/domains"
 results_path: "/tmp/metrics_crawler/results"
 logs_path: "/tmp/metrics_crawler/logs"
 nodes:
-- http://wls-01.co.spb.ru:3128/
-- http://wls-02.co.spb.ru:3128/
-- http://wls-03.co.spb.ru:3128/
-- http://wls-04.co.spb.ru:3128/
-- http://wls-05.co.spb.ru:3128/
-- http://wls-06.co.spb.ru:3128/
-- http://wls-07.co.spb.ru:3128/
-- http://wls-08.co.spb.ru:3128/
-- http://wls-09.co.spb.ru:3128/
-- http://wls-10.co.spb.ru:3128/
-
+- http://node01.org:3128/
+- http://node02.org:3128/
+- http://node03.org:3128/
 ```
 
 ### Запуск сбора метрик
@@ -106,7 +98,7 @@ Start crawling metrics for domains
 * -C - путь к конфигурационному файлу. Если указан без аргументов, то настройки считаются из ~/.config/metrics_crawler/config.yml
 * -f - файл с доменами
 * -d - файл, куда сохранять результат
-* -P - список нод (прокси-серверов). После ключа -P передаются явно одна за одной, пример: -P http://wls-01.co.spb.ru:3128 http://wls-02.co.spb.ru:3128
+* -P - список нод (прокси-серверов). После ключа -P передаются явно одна за одной, пример: -P http://node01.org:3128 http://node02.org:3128
 
 *Пример запуска сбора метрик, используя ноды, заданные в дефолтном конфигурационном файле:*
 ```
@@ -132,7 +124,7 @@ Started crawling to /tmp/metrics_crawler/results/201605061807-res.csv
 
 *Пример запуска сбора метрик, используя аргументы командной строки:*
 ```
-[crawler@mcrawler ~]$ crawler start -f domains -d results.csv -P http://wls-01.co.spb.ru:3128 http://wls-02.co.spb.ru:3128 http://wls-03.co.spb.ru:3128
+[crawler@mcrawler ~]$ crawler start -f domains -d results.csv -P http://node01.org:3128 http://node02.org:3128 http://node03.org:3128
 Started crawling to tmp/results.csv
 {:url=>"ya.ru", :yandex_catalog=>true, :yandex_tic=>"19 000", :yandex_index=>"5", :google_index=>"502 000", :google_pagerank=>0, :google_backlinks=>"0", :dmoz_catalog=>true, :alexa_rank=>3254, :host_age=>"16 лет 9 месяцев 25 дней", :host_ip=>"213.180.193.3", :host_country=>"Russian Federation", :host_from=>"12.07.99", :host_to=>"01.08.16", :download_speed=>"5ms", :external_links=>"1358000"}
 {:url=>"vk.com", :yandex_catalog=>true, :yandex_tic=>"360 000", :yandex_index=>"415 493 859", :google_index=>"91 000 000", :google_pagerank=>0, :google_backlinks=>1550, :dmoz_catalog=>true, :alexa_rank=>20, :host_age=>"18 лет 10 месяцев 12 дней", :host_ip=>"87.240.131.117", :host_country=>"Russian Federation", :host_from=>"24.06.97", :host_to=>"23.06.17", :download_speed=>"6ms", :external_links=>"532016067"}
