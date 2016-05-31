@@ -11,11 +11,9 @@
 
 ## Usage
 
-### Команды
+### CLI
 
 ---
-
-CLI:
 ```
 ➜  ~ crawler
 Commands:
