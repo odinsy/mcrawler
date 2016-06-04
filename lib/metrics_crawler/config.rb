@@ -11,13 +11,13 @@ module MetricsCrawler
       @settings = YAML.load_file(filename)
     end
 
-    def self.load(filename)
+    def self.load_with_erb(filename)
       YAML.load(ERB.new(File.read(filename)).result)
     end
 
     def self.generate(path)
       FileUtils.mkdir_p(File.dirname(path))
-      config = load(DEFAULT_CONF)
+      config = load_with_erb(DEFAULT_CONF)
       File.open(path, 'w+') do |f|
         f.write(config.to_yaml)
         puts "Generated configuration file: #{path}"
