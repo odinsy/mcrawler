@@ -2,9 +2,9 @@ require "addressable/uri"
 
 module MetricsCrawler
   module Nodes
-    # Подготовка имени ноды - берется только hostname.
+    # Подготовка нод
     def prepare_nodes(nodes)
-      nodes.map { |node| make_uri(node) }
+      nodes.map { |node| URI.parse(URI.encode(node)).to_s }
     end
     # Проверяет URI на корректность.
     # Если URI не содержит hostname или port, выдаст исключение.
