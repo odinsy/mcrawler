@@ -13,19 +13,21 @@ module MetricsCrawler
 
     attr_accessor :nodes
 
-    def initialize(config_path = nil)
-      @nodes = Config.new(config_path).settings['nodes'] if config_path
+    def initialize(nodes = nil)
+      @nodes = nodes
     end
+
     # Запуск сбора метрик
-    def run(file, destination, nodes = nil)
+    def run(file, destination, nodes = @nodes)
       domains = nodes.nil? ? load_domains(file) : split(file, nodes)
       make_header(destination)
       if nodes.nil?
-        fetch(domains, destination, nodes)
+        fetch(domains, destination)
       else
         Parallel.each(nodes, in_processes: nodes.count) { |node| fetch(domains[node], destination, node) }
       end
     end
+
     # Делит входящий файл с доменами на количество переданных нод
     # Возвращает хэш вида {node1: [domain1, domain2], node2: [domain4, domain5], ..}
     def split(file, nodes)
@@ -37,8 +39,9 @@ module MetricsCrawler
     end
 
     private
+
     # Сбор результатов для массива доменов
-    def fetch(domains, destination, proxy)
+    def fetch(domains, destination, proxy = nil)
       domains.each do |domain|
         output = SeoParams.new(domain, proxy).all
         puts "#{proxy} => #{output}"
@@ -46,6 +49,7 @@ module MetricsCrawler
         sleep 5
       end
     end
+
     # Загружает домены из файла
     def load_domains(path)
       raise ArgumentError, "File #{path} not found." unless File.exist?(path)

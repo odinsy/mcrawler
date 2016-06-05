@@ -7,6 +7,7 @@ require 'metrics_crawler/export'
 require 'metrics_crawler/connection_checker'
 require 'metrics_crawler/config'
 require 'metrics_crawler/cli'
+require 'metrics_crawler/nodes'
 
 module MetricsCrawler
 end
