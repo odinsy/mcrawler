@@ -39,8 +39,8 @@ describe 'SeoParams' do
       it 'creates new instance' do
         expect(MetricsCrawler::SeoParams.new(url, proxy)).to be_a(MetricsCrawler::SeoParams)
       end
-      it 'have a class URI::HTTP for the attribute PROXY' do
-        expect(seo_params_with_proxy.proxy).to be_a(URI::HTTP)
+      it 'have a class String for the attribute PROXY' do
+        expect(seo_params_with_proxy.proxy).to be_a(String)
       end
     end
   end

@@ -19,17 +19,18 @@ module MetricsCrawler
     PRCY_GOOGLE_INDEX_XPATH = './/div[@id="box-basik"][2]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
     PRCY_HOSTINFO_XPATH     = './/div[@id="box-basik"][4]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"]//div[@class="pull-right"]'.freeze
 
-    attr_accessor :url, :proxy
+    attr_accessor :url, :proxy, :timeout
 
-    def initialize(url, proxy = nil)
-      @proxy  = proxy
-      @url    = prepare_url(url)
+    def initialize(url, proxy = nil, timeout = 20)
+      @proxy    = proxy
+      @url      = prepare_url(url)
+      @timeout  = timeout.to_i
     end
 
     def all
       begin
         PageRankr.proxy_service = PageRankr::ProxyServices::Random.new([@proxy]) unless @proxy.nil?
-        doc_prcy  = prcy_info(@url, @proxy, 10)
+        doc_prcy  = prcy_info(@url)
         host_info = host_info(doc_prcy)
         result    = {
           proxy:            @proxy,
@@ -58,8 +59,8 @@ module MetricsCrawler
 
     private
 
-    def prcy_info(url, proxy, timeout)
-      Nokogiri::HTML(open("#{PRCY_LINK}/#{url}", proxy: proxy, read_timeout: timeout))
+    def prcy_info(url)
+      Nokogiri::HTML(open("#{PRCY_LINK}/#{url}", proxy: @proxy, read_timeout: @timeout))
     end
 
     def yandex_catalog(doc_prcy)
@@ -99,13 +100,13 @@ module MetricsCrawler
     end
 
     def dmoz_catalog(url)
-      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: 20))
+      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: @timeout))
       response_dmoz = doc.css('.open-dir-sites')
       response_dmoz.empty? ? false : true
     end
 
     def alexa_rank(url)
-      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: 20))
+      doc = Nokogiri::HTML(open("#{ALEXA_LINK}/#{url}", proxy: @proxy, read_timeout: @timeout))
       alexa_rank = doc.css('.metrics-data.align-vmiddle').first.text.strip.delete(',').to_i
       alexa_rank.zero? ? '0' : alexa_rank
     end
@@ -135,7 +136,7 @@ module MetricsCrawler
     end
 
     def external_links(url)
-      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: 20))
+      external_links = Nokogiri::HTML(open("#{LINKPAD_LINK}#{url}", proxy: @proxy, read_timeout: @timeout))
     rescue SocketError, Errno::ETIMEDOUT => ex
       error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
       'Null'
