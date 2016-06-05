@@ -44,7 +44,7 @@ module MetricsCrawler
     def fetch(domains, destination, proxy = nil)
       domains.each do |domain|
         output = SeoParams.new(domain, proxy).all
-        puts "#{proxy} => #{output}"
+        p output
         save_to_csv(output, destination) unless output.nil?
         sleep 5
       end
