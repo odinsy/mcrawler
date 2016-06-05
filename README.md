@@ -49,7 +49,8 @@ domains_path: "/tmp/metrics_crawler/domains"
 results_path: "/tmp/metrics_crawler/results"
 logs_path: "/tmp/metrics_crawler/logs"
 nodes:
-- http://node01:3128/
+- http://node01.example.org:3128/
+- http://node02.example.org:3128/
 ```
 
 * root_path - директория, где предполагается вести работу (сейчас не используется)
@@ -58,20 +59,6 @@ nodes:
 * logs_path - директория, где хранятся логи с ошибками
 * nodes - список нод (прокси-серверов), которые планируется использовать. 1 строка вида "- http://node01:3128/" - 1 нода.
 
-Пример рабочего конфига:
-
-```
-➜  ~ cat /home/odianov/.config/metrics_crawler/config.yml            
----
-root_path: "/tmp/metrics_crawler"
-domains_path: "/tmp/metrics_crawler/domains"
-results_path: "/tmp/metrics_crawler/results"
-logs_path: "/tmp/metrics_crawler/logs"
-nodes:
-- http://node01.org:3128/
-- http://node02.org:3128/
-- http://node03.org:3128/
-```
 
 ### Запуск сбора метрик
 
@@ -87,7 +74,7 @@ Options:
   -C, [--config=CONFIG]        # Path to configuration file. Default: /home/odianov/.config/metrics_crawler/config.yml
   -f, --file=FILE              # Domains file.
   -d, --dest=DEST              # Destination for results file.
-  -P, [--nodes=one two three]  # Proxies list. Example: -P http://node01.org:3128 http://node02.org:3128
+  -P, [--nodes=one two three]  # Proxies list. Example: -P http://node01.example.org:3128 http://node02.example.org:3128
 
 Start crawling metrics for domains
 ```
@@ -122,7 +109,7 @@ Started crawling to result.csv
 
 *Пример запуска сбора метрик, используя аргументы командной строки:*
 ```
-[crawler@mcrawler ~]$ crawler start -f domains -d results.csv -P http://node01.org:3128 http://node02.org:3128 http://node03.org:3128
+[crawler@mcrawler ~]$ crawler start -f domains -d results.csv -P http://node01.example.org:3128 http://node02.example.org:3128 http://node03.example.org:3128
 Started crawling to results.csv
 {:url=>"ya.ru", :yandex_catalog=>true, :yandex_tic=>"19 000", :yandex_index=>"5", :google_index=>"502 000", :google_pagerank=>0, :google_backlinks=>"0", :dmoz_catalog=>true, :alexa_rank=>3254, :host_age=>"16 лет 9 месяцев 25 дней", :host_ip=>"213.180.193.3", :host_country=>"Russian Federation", :host_from=>"12.07.99", :host_to=>"01.08.16", :download_speed=>"5ms", :external_links=>"1358000"}
 {:url=>"vk.com", :yandex_catalog=>true, :yandex_tic=>"360 000", :yandex_index=>"415 493 859", :google_index=>"91 000 000", :google_pagerank=>0, :google_backlinks=>1550, :dmoz_catalog=>true, :alexa_rank=>20, :host_age=>"18 лет 10 месяцев 12 дней", :host_ip=>"87.240.131.117", :host_country=>"Russian Federation", :host_from=>"24.06.97", :host_to=>"23.06.17", :download_speed=>"6ms", :external_links=>"532016067"}
