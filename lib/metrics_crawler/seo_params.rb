@@ -28,7 +28,7 @@ module MetricsCrawler
 
     def all
       begin
-        PageRankr.proxy_service = PageRankr::ProxyServices::Random.new(@proxy.to_a) unless @proxy.nil?
+        PageRankr.proxy_service = @proxy unless @proxy.nil?
         doc_prcy  = prcy_info(@url, @proxy, 10)
         host_info = host_info(doc_prcy)
         result    = {
