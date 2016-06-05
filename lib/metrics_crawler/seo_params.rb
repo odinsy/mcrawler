@@ -33,7 +33,6 @@ module MetricsCrawler
         doc_prcy  = prcy_info(@url)
         host_info = host_info(doc_prcy)
         result    = {
-          proxy:            @proxy,
           url:              @url,
           yandex_catalog:   yandex_catalog(doc_prcy),
           yandex_tic:       yandex_tic(doc_prcy),
