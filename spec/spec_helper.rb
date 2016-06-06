@@ -15,4 +15,8 @@ end
 
 RSpec.configure do |config|
   config.failure_color = :yellow
+  config.after(:suite) do
+    new_config_path = File.expand_path("../data/new_config.yml", __FILE__)
+    File.delete(new_config_path)
+  end
 end

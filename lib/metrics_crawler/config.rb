@@ -20,6 +20,7 @@ module MetricsCrawler
     def self.generate(path = CONFIG_PATH)
       FileUtils.mkdir_p(File.dirname(path))
       config = load_with_erb(DEFAULT_CONF)
+      rewrite? if File.exist?(path)
       File.open(path, 'w+') do |f|
         f.write(config.to_yaml)
         puts "Generated configuration file: #{path}"
@@ -27,6 +28,18 @@ module MetricsCrawler
     end
 
     private
+
+    def self.rewrite?
+      while true
+        print "Whould you like to ovewrite the configuration file? [y/n]: "
+        case gets.strip
+        when 'y', 'yes'
+          true
+        when 'n', 'no'
+          break
+        end
+      end
+    end
 
     def self.load_with_erb(filename)
       YAML.load(ERB.new(File.read(filename)).result)
