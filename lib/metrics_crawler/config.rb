@@ -11,6 +11,7 @@ module MetricsCrawler
 
     def initialize(filename = CONFIG_PATH)
       @data = YAML.load_file(filename)
+      @nodes
     end
 
     def nodes
@@ -18,26 +19,36 @@ module MetricsCrawler
     end
 
     def self.generate(path = CONFIG_PATH)
-      FileUtils.mkdir_p(File.dirname(path))
-      config = load_with_erb(DEFAULT_CONF)
-      rewrite? if File.exist?(path)
-      File.open(path, 'w+') do |f|
-        f.write(config.to_yaml)
-        puts "Generated configuration file: #{path}"
+      config_dir = File.dirname(path)
+      FileUtils.mkdir_p(config_dir) unless File.exist?(config_dir)
+      if !File.exist?(path) || overwrite?
+        create_config(path)
       end
     end
 
     private
 
-    def self.rewrite?
-      while true
-        print "Whould you like to ovewrite the configuration file? [y/n]: "
-        case gets.strip
-        when 'y', 'yes'
-          true
-        when 'n', 'no'
-          break
-        end
+    def self.overwrite?
+      print "Would you like to overwrite the configuration file? [y/n]: "
+      case capture_answer
+      when 'y', 'yes'
+        true
+      when 'n', 'no'
+        false
+      else
+        puts "Invalid input."
+      end
+    end
+
+    def self.capture_answer
+      $stdin.gets.strip.downcase
+    end
+
+    def self.create_config(path)
+      default_config = load_with_erb(DEFAULT_CONF)
+      File.open(path, 'w+') do |f|
+        f.write(default_config.to_yaml)
+        puts "Generated configuration file: #{path}"
       end
     end
 
