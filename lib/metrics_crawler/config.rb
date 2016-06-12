@@ -21,9 +21,7 @@ module MetricsCrawler
     def self.generate(path = CONFIG_PATH)
       config_dir = File.dirname(path)
       FileUtils.mkdir_p(config_dir) unless File.exist?(config_dir)
-      if !File.exist?(path) || overwrite?
-        create_config(path)
-      end
+      create_config(path) if !File.exist?(path) || overwrite?
     end
 
     private
