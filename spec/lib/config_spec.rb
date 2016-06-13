@@ -1,7 +1,7 @@
 require 'metrics_crawler/config'
 require 'stringio'
 
-describe 'Crawler' do
+describe 'Config' do
   let!(:config) { build(:config) }
   let!(:config_path) { File.expand_path("../../data/new_config.yml", __FILE__) }
 
