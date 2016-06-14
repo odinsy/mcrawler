@@ -5,7 +5,6 @@ require_relative 'nodes'
 
 module MetricsCrawler
   class Config
-
     attr_accessor :data
     attr_reader :nodes
 
@@ -20,17 +19,17 @@ module MetricsCrawler
       create_config(path) if !File.exist?(path) || overwrite?
     end
 
-    private
+    private_class_method
 
     def self.overwrite?
-      print "Would you like to overwrite the configuration file? [y/n]: "
+      print 'Would you like to overwrite the configuration file? [y/n]: '
       case capture_answer
       when 'y', 'yes'
         true
       when 'n', 'no'
         false
       else
-        puts "Invalid input."
+        puts 'Invalid input.'
       end
     end
 
