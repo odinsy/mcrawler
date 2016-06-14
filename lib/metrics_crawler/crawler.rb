@@ -3,6 +3,7 @@ require 'uri'
 require 'yaml'
 require 'fileutils'
 require_relative 'config'
+require_relative 'nodes'
 require_relative 'seo_params'
 require_relative 'constants'
 require_relative 'export'
@@ -14,7 +15,7 @@ module MetricsCrawler
     attr_accessor :nodes
 
     def initialize(nodes = nil)
-      @nodes = nodes
+      @nodes = MetricsCrawler::Nodes.new(nodes)
     end
 
     # Запуск сбора метрик

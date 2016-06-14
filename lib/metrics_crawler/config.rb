@@ -5,17 +5,13 @@ require_relative 'nodes'
 
 module MetricsCrawler
   class Config
-    include Nodes
 
     attr_accessor :data
+    attr_reader :nodes
 
     def initialize(filename = CONFIG_PATH)
-      @data = YAML.load_file(filename)
-      @nodes
-    end
-
-    def nodes
-      @nodes = prepare_nodes(data['nodes'])
+      @data   = YAML.load_file(filename)
+      @nodes  = @data['nodes']
     end
 
     def self.generate(path = CONFIG_PATH)
