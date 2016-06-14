@@ -22,7 +22,10 @@ module MetricsCrawler
                 ).freeze
 
     # Exports array with domain hashes to CSV
-    # @return [String]  the filename
+    # @return [String]  filename
+    # @param [Hash] hash                  Hash of domain metrics
+    # @param [String] filename            Path where to save file
+    #
     def save_to_csv(hash, filename)
       make_dir(File.dirname(filename))
       CSV.open(filename, 'a+', col_sep: '|') do |file|
@@ -32,11 +35,15 @@ module MetricsCrawler
     end
 
     # Creates directory tree if directory doesn't exists
+    # @param [String] dir                  Path to directory
+    #
     def make_dir(dir)
       FileUtils.mkdir_p(dir) unless File.exist?(dir)
     end
 
-    # Creates header in file
+    # Gets HEADERS and creates header in the file
+    # @param [String] filename             Path to file where to make header
+    #
     def make_header(filename)
       make_dir(File.dirname(filename))
       CSV.open(filename, 'w+', col_sep: '|') do |file|

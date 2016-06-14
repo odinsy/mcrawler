@@ -9,16 +9,27 @@ require_relative 'constants'
 require_relative 'export'
 
 module MetricsCrawler
+  # Class which provides a possibility for crawling metrics of domains
+  # @example
+  #   crawler = MetricsCrawler::Crawler.new(["http://node01.example.com", "http://node02.example.com"])
+  #   crawler = MetricsCrawler::Crawler.new
   class Crawler
     include Export
 
     attr_accessor :nodes
-
+    # Creates a new MetricsCrawler::Crawler object
+    # @param [Array] nodes                  Input array of nodes
+    # @attr [MetricsCrawler::Nodes] nodes   Array of nodes
+    #
     def initialize(nodes = nil)
       @nodes = MetricsCrawler::Nodes.new(nodes)
     end
 
-    # Запуск сбора метрик
+    # Run the crawler
+    # @param [String] file                Path to the file with domains
+    # @param [String] destination         Path to the results file
+    # @param [Array]  nodes               Array of the nodes
+    #
     def run(file, destination, nodes = @nodes)
       domains = nodes.nil? ? load_domains(file) : split(file, nodes)
       make_header(destination)
@@ -29,8 +40,11 @@ module MetricsCrawler
       end
     end
 
-    # Делит входящий файл с доменами на количество переданных нод
-    # Возвращает хэш вида {node1: [domain1, domain2], node2: [domain4, domain5], ..}
+    # Split the input file with domains into count of nodes
+    # @return [Hash]                        Hash like "http://node01.example.com": ["domain1", "domain2"], "http://node02.example.com": ["domain4", "domain5"]
+    # @param [String] file                  Path to the file with domains
+    # @param [Array]  nodes                 Array of the nodes
+    #
     def split(file, nodes)
       domains   = load_domains(file)
       part_num  = (domains.count / nodes.count.to_f).ceil
