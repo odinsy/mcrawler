@@ -19,13 +19,13 @@ module MetricsCrawler
     attr_accessor :nodes
     # Creates a new MetricsCrawler::Crawler object
     # @param [Array] nodes                  Input array of nodes
-    # @attr [MetricsCrawler::Nodes] nodes   Array of nodes
+    # @attr [MetricsCrawler::Nodes] nodes   Array of the nodes
     #
     def initialize(nodes = nil)
       @nodes = MetricsCrawler::Nodes.new(nodes)
     end
 
-    # Run the crawler
+    # Runs the crawler
     # @param [String] file                Path to the file with domains
     # @param [String] destination         Path to the results file
     # @param [Array]  nodes               Array of the nodes
@@ -40,7 +40,7 @@ module MetricsCrawler
       end
     end
 
-    # Split the input file with domains into count of nodes
+    # Splits the input file with domains into count of nodes.
     # @return [Hash]                        Hash like "http://node01.example.com": ["domain1", "domain2"], "http://node02.example.com": ["domain4", "domain5"]
     # @param [String] file                  Path to the file with domains
     # @param [Array]  nodes                 Array of the nodes
@@ -55,7 +55,11 @@ module MetricsCrawler
 
     private
 
-    # Сбор результатов для массива доменов
+    # Fetches results for array of domains via or without proxy and saves to the file.
+    # @param [Array] domains                Array of the domains
+    # @param [String] destination           Path to the results file
+    # @param [String] proxy                 Proxy-server like "http://node01.example.com"
+    #
     def fetch(domains, destination, proxy = nil)
       domains.each do |domain|
         output = SeoParams.new(domain, proxy).all
@@ -65,7 +69,11 @@ module MetricsCrawler
       end
     end
 
-    # Загружает домены из файла
+    # Loads domains from file, line by line.
+    # 1 domain = 1 line
+    # @return [Array]                       Array of the domains
+    # @param [String] path                  Path to the file with domains
+    #
     def load_domains(path)
       raise ArgumentError, "File #{path} not found." unless File.exist?(path)
       File.readlines(path).map(&:strip)
