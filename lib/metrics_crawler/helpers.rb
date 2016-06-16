@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'addressable/uri'
 
 module MetricsCrawler
   # Module which accumulates helper methods
