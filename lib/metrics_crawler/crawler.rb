@@ -22,7 +22,7 @@ module MetricsCrawler
     # @attr [MetricsCrawler::Nodes] nodes   Array of the nodes
     #
     def initialize(nodes = nil)
-      @nodes = MetricsCrawler::Nodes.new(nodes)
+      @nodes = MetricsCrawler::Nodes.new(nodes).nodes
     end
 
     # Runs the crawler
