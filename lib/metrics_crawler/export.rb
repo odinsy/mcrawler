@@ -12,13 +12,13 @@ module MetricsCrawler
                  google_backlinks
                  dmoz_catalog
                  alexa_rank
+                 external_links
+                 download_speed
                  host_age
                  host_ip
                  host_country
                  host_from
                  host_to
-                 download_speed
-                 external_links
                 ).freeze
 
     # Exports array with domain hashes to CSV
