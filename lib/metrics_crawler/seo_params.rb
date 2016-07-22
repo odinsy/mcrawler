@@ -12,13 +12,14 @@ module MetricsCrawler
     YACA_LINK               = 'https://yandex.ru/yaca/?text='.freeze
     PRCY_LINK               = 'http://pr-cy.ru/a'.freeze
     LINKPAD_LINK            = 'https://www.linkpad.ru/?search='.freeze
-    DMOZ_LINK               = 'https://www.dmoz.org/search?q='.freeze
     ALEXA_LINK              = 'http://www.alexa.com/siteinfo'.freeze
-    PRCY_YANDEX_INDEX_XPATH = './/div[@id="box-basik"][1]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
-    PRCY_YANDEX_CAT_XPATH   = './/div[@id="box-basik"][1]/div[2]/div/div[1]/div[2]/a'.freeze
-    PRCY_YANDEX_TIC_XPATH   = './/div[@id="box-basik"][1]/div[2]/div/div[1]/div[1]/a'.freeze
-    PRCY_GOOGLE_INDEX_XPATH = './/div[@id="box-basik"][2]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"][1]//div[@class="pull-right"][3]//a'.freeze
-    PRCY_HOSTINFO_XPATH     = './/div[@id="box-basik"][4]//div[@class="box-content"]//div[@class="row"]//div[@class="col-sm-4"]//div[@class="pull-right"]'.freeze
+    PRCY_DMOZ_CAT_XPATH     = ".//*[@id='katalogi']/following-sibling::div[1]/div[2]/div[1]/@test-status='success'".freeze
+    PRCY_YANDEX_CAT_XPATH   = ".//*[@id='katalogi']/following-sibling::div[1]/div[1]/div[1]/@test-status='success'".freeze
+    PRCY_YANDEX_INDEX_XPATH = ".//*[@id='indeksacia']/following-sibling::div[1]/div[1]/div[1]/div[1]/div[2]/a".freeze
+    PRCY_GOOGLE_INDEX_XPATH = ".//*[@id='indeksacia']/following-sibling::div[1]/div[2]/div[1]/div[1]/div[2]/a".freeze
+    PRCY_YANDEX_TIC_XPATH   = ".//*[@id='osnovnye_parametry']/following-sibling::div[1]/div[1]/div[1]/div[1]/div[2]/a".freeze
+    PRCY_HOSTINFO_XPATH     = ".//*[@id='servernaa_informacia']/following-sibling::div[1]".freeze
+    # DMOZ_LINK               = 'https://www.dmoz.org/search?q='.freeze
 
     attr_accessor :url, :proxy, :timeout
 
@@ -32,24 +33,23 @@ module MetricsCrawler
       begin
         PageRankr.proxy_service = PageRankr::ProxyServices::Random.new([@proxy]) unless @proxy.nil?
         doc_prcy  = prcy_info(@url)
-        host_info = host_info(doc_prcy)
+        # host_info = host_info(doc_prcy)
         result    = {
           url:              @url,
           yandex_catalog:   yandex_catalog(doc_prcy),
           yandex_tic:       yandex_tic(doc_prcy),
           yandex_index:     yandex_index(doc_prcy),
           google_index:     google_index(doc_prcy),
-          google_pagerank:  google_pagerank(@url),
           google_backlinks: backlinks(@url),
-          dmoz_catalog:     dmoz_catalog(@url),
+          dmoz_catalog:     dmoz_catalog(doc_prcy),
           alexa_rank:       alexa_rank(@url),
-          host_age:         host_info[0].force_encoding("utf-8"),
-          host_ip:          host_info[1],
-          host_country:     host_info[3],
-          host_from:        host_info[4],
-          host_to:          host_info[5],
+          external_links:   external_links(@url),
           download_speed:   benchmarking(@url),
-          external_links:   external_links(@url)
+          # host_age:         host_info[0].force_encoding("utf-8"),
+          # host_ip:          host_info[1],
+          # host_country:     host_info[3],
+          # host_from:        host_info[4],
+          # host_to:          host_info[5]
         }
       rescue => ex
         error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
@@ -64,7 +64,7 @@ module MetricsCrawler
     end
 
     def yandex_catalog(doc_prcy)
-      doc_prcy.xpath(PRCY_YANDEX_CAT_XPATH).text.strip == 'Да' ? true : false
+      doc_prcy.xpath(PRCY_YANDEX_CAT_XPATH)
     end
 
     def yandex_tic(doc_prcy)
@@ -81,13 +81,8 @@ module MetricsCrawler
       google_index.gsub(/n\/a/, '0')
     end
 
-    def google_pagerank(url)
-      pagerank = PageRankr.ranks(url, :google)[:google]
-    rescue => ex
-      error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
-      'nil'
-    else
-      pagerank.nil? ? '0' : pagerank
+    def dmoz_catalog(doc_prcy)
+      doc_prcy.xpath(PRCY_YANDEX_CAT_XPATH)
     end
 
     def backlinks(url)
@@ -97,12 +92,6 @@ module MetricsCrawler
       'nil'
     else
       backlinks.nil? ? '0' : backlinks
-    end
-
-    def dmoz_catalog(url)
-      doc = Nokogiri::HTML(open("#{DMOZ_LINK}#{url}", proxy: @proxy, read_timeout: @timeout))
-      response_dmoz = doc.css('.open-dir-sites')
-      response_dmoz.empty? ? false : true
     end
 
     def alexa_rank(url)
