@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'PageRankr', '~> 4.6', '>= 4.6.0'
   spec.add_dependency 'nokogiri', '~> 1.6', '>= 1.6.6.2'
-  spec.add_dependency 'parallel', '~> 1.8'
+  spec.add_dependency 'parallel', '~> 1.9'
   spec.add_dependency 'ruby-progressbar', '~> 1.8', '>= 1.8.0'
   spec.add_dependency 'thor', '~> 0.19.1'
   spec.add_dependency 'open_uri_redirections'
