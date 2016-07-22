@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'open_uri_redirections'
 require 'nokogiri'
 require 'PageRankr'
 require_relative 'constants'
@@ -59,7 +60,7 @@ module MetricsCrawler
     private
 
     def prcy_info(url)
-      Nokogiri::HTML(open("#{PRCY_LINK}/#{url}", proxy: @proxy, read_timeout: @timeout))
+      Nokogiri::HTML(open("#{PRCY_LINK}/#{url}", :allow_redirections => :safe, proxy: @proxy, read_timeout: @timeout))
     end
 
     def yandex_catalog(doc_prcy)
