@@ -1,5 +1,7 @@
 # MetricsCrawler
 
+[![Build Status](https://travis-ci.org/odinsy/metrics_crawler.svg?branch=master)](https://travis-ci.org/odinsy/metrics_crawler)
+
 Гем для сбора метрик доменов.
 
 ## Installation
