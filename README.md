@@ -1,6 +1,6 @@
-# MetricsCrawler
-
 [![Build Status](https://travis-ci.org/odinsy/metrics_crawler.svg?branch=master)](https://travis-ci.org/odinsy/metrics_crawler)
+
+# MetricsCrawler
 
 Гем для сбора метрик доменов.
 
