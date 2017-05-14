@@ -1,4 +1,4 @@
- Style/Encoding:
+Style/Encoding:
   Enabled: false
 
 Metrics/LineLength:
