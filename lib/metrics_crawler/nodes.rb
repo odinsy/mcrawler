@@ -14,6 +14,7 @@ module MetricsCrawler
     end
 
     private
+
     # Nodes preparation
     # Every node will be parsed by URI.parse, encoded and converted to String
     # @return [Array]                       Array of parsed and encoded nodes
