@@ -46,7 +46,7 @@ module MetricsCrawler
     end
 
     def self.load_with_erb(filename)
-      YAML.load(ERB.new(File.read(filename)).result)
+      YAML.safe_load(ERB.new(File.read(filename)).result)
     end
   end
 end
