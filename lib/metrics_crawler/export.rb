@@ -18,8 +18,7 @@ module MetricsCrawler
                  host_ip
                  host_country
                  host_from
-                 host_to
-                ).freeze
+                 host_to).freeze
 
     # Exports array with domain hashes to CSV
     # @return [String]  filename

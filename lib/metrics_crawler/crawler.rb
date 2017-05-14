@@ -61,13 +61,9 @@ module MetricsCrawler
     # @param [String] proxy                 Proxy-server like "http://node01.example.com"
     #
     def fetch(domains, destination, proxy = nil)
-      unless domains.nil?
-        domains.each do |domain|
-          output = SeoParams.new(domain, proxy).all
-          puts "#{proxy}=> #{output}"
-          save_to_csv(output, destination) unless output.nil?
-          sleep 5
-        end
+      domains.each do |domain|
+        output = SeoParams.new(domain, proxy).all
+        save_to_csv(output, destination) if output
       end
     end
 
