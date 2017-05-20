@@ -1,18 +1,26 @@
+require 'net/http'
+require 'json'
+
 module MetricsCrawler
   # MetricsCrawler::Prcy class
   # @example
   #   MetricsCrawler::Prcy.new("google.com")
   #
   class Prcy
-    API_LINK = 'http://api.pr-cy.ru/analysis.json?domain='.freeze
+    API_URL = 'http://api.pr-cy.ru/analysis.json?domain='.freeze
 
-    def initialize(url, proxy = nil, timeout = 20)
-      @url      = prepare_url(url)
-      @proxy    = proxy
-      @timeout  = timeout.to_i
+    def initialize(url, proxy_host = nil, proxy_port = nil)
+      @url = prepare_url(url)
+      @proxy_host = proxy_host
+      @proxy_port = proxy_port
     end
 
-    def get_metrics
+    def fetch
+      uri = URI("#{API_URL}#{@url}")
+      Net::HTTP.new(uri, nil, @proxy_host, @proxy_port).start do |http|
+        res = http.get(uri)
+        JSON.parse(res)
+      end
     end
 
     private
