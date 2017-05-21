@@ -21,12 +21,12 @@ module MetricsCrawler
     def all
       begin
         PageRankr.proxy_service = PageRankr::ProxyServices::Random.new([@proxy]) unless @proxy.nil?
-        result    = {
+        result = {
           url:              @url,
           google_backlinks: backlinks(@url),
           alexa_rank:       alexa_rank(@url),
           external_links:   external_links(@url),
-          download_speed:   benchmarking(@url),
+          download_speed:   benchmarking(@url)
         }
       rescue => ex
         error_handler("Method: #{__callee__}, rescue_class: #{ex.class}, rescue_message: #{ex.message}, domain: #{@url}, proxy: #{@proxy}")
