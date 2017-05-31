@@ -10,17 +10,19 @@ module MetricsCrawler
     API_URL = 'http://api.pr-cy.ru/analysis.json?domain='.freeze
 
     def initialize(url, proxy_host = nil, proxy_port = nil)
-      @url = prepare_url(url)
-      @proxy_host = proxy_host
-      @proxy_port = proxy_port
+      @url        = prepare_url(url)
+      @proxy_host = proxy_host.to_s
+      @proxy_port = proxy_port.to_i
     end
 
     def fetch
-      uri = URI("#{API_URL}#{@url}")
-      Net::HTTP.new(uri, nil, @proxy_host, @proxy_port).start do |http|
-        res = http.get(uri)
-        JSON.parse(res)
+      uri     = URI.parse("#{API_URL}#{@url}")
+      proxy   = Net::HTTP::Proxy(@proxy_host, @proxy_port)
+      request = Net::HTTP::Get.new(uri)
+      result = proxy.start(uri.host, uri.port) do |http|
+        http.request(request).body
       end
+      JSON.parse(result)
     end
 
     private
