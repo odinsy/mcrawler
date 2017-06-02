@@ -17,7 +17,6 @@ describe 'SeoParams' do
     end
 
     describe '.all', vcr: true do
-      attributes = %w(url yandex_catalog yandex_tic yandex_index google_index google_pagerank google_backlinks dmoz_catalog alexa_rank host_age host_ip host_country host_from host_to download_speed external_links)
       subject(:result) { seo_params.all }
 
       it 'responds to method "all"' do
@@ -25,11 +24,6 @@ describe 'SeoParams' do
       end
       it 'returns a Hash' do
         expect(result).to be_a(Hash)
-      end
-      attributes.each do |key|
-        it "returns result with a key #{key}" do
-          expect(result).to have_key(key.to_sym)
-        end
       end
     end
   end
