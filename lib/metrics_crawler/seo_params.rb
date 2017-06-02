@@ -6,9 +6,9 @@ require_relative 'constants'
 
 module MetricsCrawler
   class SeoParams
-    YACA_LINK               = 'https://yandex.ru/yaca/?text='.freeze
-    LINKPAD_LINK            = 'https://www.linkpad.ru/?search='.freeze
-    ALEXA_LINK              = 'http://www.alexa.com/siteinfo'.freeze
+    YACA_LINK    = 'https://yandex.ru/yaca/?text   ='.freeze
+    LINKPAD_LINK = 'https://www.linkpad.ru/?search ='.freeze
+    ALEXA_LINK   = 'http ://www.alexa.com/siteinfo'.freeze
 
     attr_accessor :url, :proxy, :timeout
 
